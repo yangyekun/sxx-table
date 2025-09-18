@@ -8,23 +8,20 @@
         </div>
       </template>
     </Toast>
-    <Toast position="top-center" group="cg">
-      <template #container="{ message, closeCallback }">
-        <div style="padding: 8px 15px;display: flex; align-items: center;">
-          <i class="pi pi-check" style="color: 'var(--p-red-500)'; margin-right: 5px;"></i>
-          {{ message.summary }}
-        </div>
-      </template>
-    </Toast>
-    <ConfirmPopup></ConfirmPopup>
     <div class="page-head">
       <div class="point-title">
         <span class="point"></span>
         <span class="point-label">同步气象雨量数据记录</span>
       </div>
       <div>
-        <Button label="刷新" size="small" @click="getList" :disabled="isLoading" style="padding: 5px 25px;" />
-        <Button label="导出" size="small" severity="success" v-if="tableData.length" @click="handleExport" style="padding: 5px 25px;margin-left: 10px;"  />
+        <DatePicker v-model="stm" dateFormat="yy-mm-dd" class="w110" />
+        <Select v-model="sHour" :options="hourArr" optionLabel="label" optionValue="value"  class="w70 m-x-5" />
+        <span>-</span>
+        <DatePicker v-model="etm" dateFormat="yy-mm-dd" class="w110 ml-10" />
+        <Select v-model="eHour" :options="hourArr" optionLabel="label" optionValue="value"  class="w70 m-x-5" />
+
+        <Button label="查询" size="small" @click="getList" :disabled="isLoading" style="padding: 5px 25px;" />
+        <Button label="导出" size="small" severity="success" v-if="tableData.length" @click="handleExport" class="ml-10" style="padding: 5px 25px;"  />
       </div>
     </div>
     <div class="page-main">
@@ -46,8 +43,8 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import dayjs from "dayjs";
+import {hourArr} from "./utils/index.js";
 import { useToast } from 'primevue/usetoast';
-import { useConfirm } from "primevue/useconfirm";
 import { AgGridVue } from "ag-grid-vue3";
 
 import "ag-grid-community/styles/ag-grid.css";
@@ -57,9 +54,16 @@ defineOptions({
   name: 'index'
 })
 
+const toast = useToast()
+
 const tableData = ref([])
 const columnDefs = ref([])
 const isLoading = ref(false)
+
+const stm = ref('')
+const sHour = ref('08')
+const etm = ref('')
+const eHour = ref('08')
 
 let gridApi;
 const defColOption = {
@@ -72,6 +76,10 @@ const defColOption = {
 }
 
 onMounted(() => {
+  stm.value = dayjs().add(-3, "d").format("YYYY-MM-DD");
+  etm.value = dayjs().format("YYYY-MM-DD");
+  sHour.value = eHour.value = dayjs().format("HH");
+
   columnDefs.value = [
     { field: "index", title: "序号", headerName: '序号' },
     { field: "stcd", title: "站码", headerName: '站码' },
@@ -81,18 +89,18 @@ onMounted(() => {
     { field: "tm", title: "雨量时间", headerName: '雨量时间' },
     { field: "operationTime", title: "操作时间", headerName: '操作时间' },
   ];
+
+  getList();
 })
 
 // 查询数据
 const getList = async () => {
   tableData.value = [];
   isLoading.value = true;
-  let data = {
-    stm: '2025-09-15 00:00',
-    etm: '2025-09-18 16:00'
-  }
+  let stime = dayjs(stm.value).format("YYYY-MM-DD ") + `${sHour.value}:00`;
+  let etime = dayjs(etm.value).format("YYYY-MM-DD ") + `${eHour.value}:00`;
 
-  axios.get(`http://10.34.1.25:8010/cj/water/selectQXRainSyc?stm=${data.stm}&etm=${data.etm}`).then(res => {
+  axios.get(`http://10.34.1.25:8010/cj/water/selectQXRainSyc?stm=${stime}&etm=${etime}`).then(res => {
     isLoading.value = false;
     if(res.data.code === 0) {
       tableData.value = res.data.data.map((item, idx) => ({
@@ -101,11 +109,10 @@ const getList = async () => {
       }));
       setTimeout(() => {
         gridApi.sizeColumnsToFit();
-      }, 0);
+      }, 50);
     }
   });
 }
-getList()
 
 const handleExport = () => {
   const config = {
@@ -140,19 +147,25 @@ const onGridReady = (params) => {
 </script>
 
 <style>
+.w110 {
+  width: 110px;
+}
+.w70 {
+  width: 70px;
+}
+.ml-10 {
+  margin-left: 10px;
+}
+.m-x-10 {
+  margin: 0 10px;
+}
+.m-x-5 {
+  margin: 0 5px;
+}
+
 .ag-cell {
   text-align: center;
   white-space: normal !important;  /* 允许文本换行 */
   word-wrap: break-word;           /* 自动换行 */
-}
-.text-red {
-  color: red;
-}
-.dialogForm .t2 {
-  font-weight: 400;
-}
-
-.w285 {
-  width: 285px;
 }
 </style>
