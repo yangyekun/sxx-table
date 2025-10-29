@@ -11,15 +11,16 @@ import zh_cn from './assets/zh_cn.js';
 // import OrpStatus from './components/orpStatus.vue'
 // import OrpButton from './components/orpButton.vue'
 // import OrpMsg from './components/orpMsg.vue'
-import OrpActions from './components/orpActions.vue'
-import BtnActions from './components/btnActions.vue'
+import OrpActions from '@/components/orpActions.vue'
+import BtnActions from '@/components/btnActions.vue'
 import './utils/ag-grid.js'
+import router from './router/index.js'
 
-// import "ag-grid-community/styles/ag-grid.css";
-// import "ag-grid-community/styles/ag-theme-balham.css";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
 
 const app = createApp(App)
-// app.use(router)
+app.use(router)
 // app.component('OrpType', OrpType)
 // app.component('OrpStatus', OrpStatus)
 // app.component('OrpButton', OrpButton)

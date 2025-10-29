@@ -1,4 +1,5 @@
 import { defineConfig } from 'vite'
+import {resolve} from 'path';
 import vue from '@vitejs/plugin-vue'
 import Components from 'unplugin-vue-components/vite';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers'
@@ -19,5 +20,11 @@ export default defineConfig({
     host: '0.0.0.0',
     port: 12300
   },
-  base: './'
+  base: './',
+  resolve: {
+    alias: {
+      // eslint-disable-next-line no-undef
+      '@': resolve(__dirname, 'src')
+    }
+  },
 })
