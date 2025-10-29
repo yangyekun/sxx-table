@@ -47,12 +47,8 @@ html,body {
 }
 
 .point-title {
-  display: flex; 
-  justify-content: space-between; 
+  display: flex;
   align-items: center; 
-  margin-bottom: 10px;
-  /* height: 45px;
-  line-height: 45px; */
 }
 
 .point-title .point {
