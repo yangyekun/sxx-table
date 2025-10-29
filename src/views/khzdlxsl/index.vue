@@ -34,6 +34,7 @@
           <span class="point"></span>
           <span class="point-label">库湖最大拦蓄水量</span>
         </div>
+        <div>单位：水位（米），蓄水量（百万立方米）</div>
       </div>
       
       <ag-grid-vue
