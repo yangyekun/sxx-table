@@ -76,7 +76,7 @@ const eHour = ref('08')
 const stationTypeList = ref('')
 const timeTypeList = ref('')
 const stationType = ref('')
-const timeType = ref('')
+const timeType = ref('任意时间')
 const tableData = ref([])
 const columnDefs = ref([])
 const isLoading = ref(false)
@@ -120,7 +120,6 @@ const init = () => {
       stationType.value = stationTypeList.value[0];
 
       timeTypeList.value = res.data.timeType;
-      timeType.value = timeTypeList.value[0];
 
       getList();
     }
