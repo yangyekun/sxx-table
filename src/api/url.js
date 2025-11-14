@@ -22,3 +22,19 @@ export function getMaxMinWDiff(data) {
     method: 'get'
   });
 }
+
+// 站点统计
+export function getStationCount(data) {
+  return http({
+    url: "/jb/station/getStationCount",
+    method: 'get'
+  });
+}
+
+// 逐日总蓄水
+export function getTotalW(data) {
+  return http({
+    url: `/jb/hq/getTotalW?startTime=${data.stime}&endTime=${data.etime}`,
+    method: 'get'
+  });
+}

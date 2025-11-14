@@ -16,6 +16,7 @@ import BtnActions from '@/components/btnActions.vue'
 import './utils/ag-grid.js'
 import router from './router/index.js'
 
+import 'virtual:uno.css';
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 
