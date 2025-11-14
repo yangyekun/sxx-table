@@ -8,7 +8,7 @@
           </div>
       </template>
     </Toast>
-    <div class="page-main">
+    <div class="page-main" bg-white>
       <div flex-y-center mb-10px>
         <div class="point-title">
           <span class="point"></span>
