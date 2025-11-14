@@ -12,24 +12,24 @@
     <div class="page-head">
       <div>
         <span>查询时间：</span>
-        <DatePicker v-model="stm" dateFormat="yy-mm-dd" class="w110" />
-        <Select v-model="sHour" :options="hourArr" optionLabel="label" optionValue="value" class="w70 m-x-5" />
+        <DatePicker v-model="stm" dateFormat="yy-mm-dd" w-110px />
+        <Select v-model="sHour" :options="hourArr" optionLabel="label" optionValue="value" w-70px m-x-5px />
         <span>-</span>
-        <DatePicker v-model="etm" dateFormat="yy-mm-dd" class="w110 ml-10" />
-        <Select v-model="eHour" :options="hourArr" optionLabel="label" optionValue="value" class="w70 m-x-5" />
+        <DatePicker v-model="etm" dateFormat="yy-mm-dd" w-110px ml-10px />
+        <Select v-model="eHour" :options="hourArr" optionLabel="label" optionValue="value" w-70px m-x-5px />
 
-        <span class="m-x-5">时间类型：</span>
-        <Select v-model="timeType" :options="timeTypeList" optionLabel="" optionValue="" class="w100" />
-        <span class="m-x-5">库湖类型：</span>
-        <Select v-model="stationType" :options="stationTypeList" optionLabel="" optionValue="" class="w100" />
+        <span m-x-5px>时间类型：</span>
+        <Select v-model="timeType" :options="timeTypeList" optionLabel="" optionValue="" w-110px />
+        <span m-x-5px>库湖类型：</span>
+        <Select v-model="stationType" :options="stationTypeList" optionLabel="" optionValue="" w-110px />
 
-        <Button label="查询" size="small" @click="getList" :disabled="isLoading" class="ml-10" style="padding: 5px 25px;" />
-        <Button label="导出" size="small" severity="success" v-if="tableData.length" @click="handleExport" class="ml-10" style="padding: 5px 25px;"  />
+        <Button label="查询" size="small" @click="getList" :disabled="isLoading" ml-10px style="padding: 5px 25px;" />
+        <Button label="导出" size="small" severity="success" v-if="tableData.length" @click="handleExport" ml-10px style="padding: 5px 25px;"  />
       </div>
     </div>
 
     <div class="page-main">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+      <div flex-between mb-10px>
         <div class="point-title">
           <span class="point"></span>
           <span class="point-label">库湖最大拦蓄水量</span>
