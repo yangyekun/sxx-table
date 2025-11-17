@@ -228,7 +228,8 @@ const setOption = (data) => {
             // 流量为 0时，msqtm为null 报汛流量删除
             // qdata.push(qvalue)
         }
-
+        
+        
         minz = Math.min(minz, item.z);
         maxz = Math.max(maxz, item.z);
         // minq = Math.min(minq, item.q || 0);
@@ -505,7 +506,7 @@ const setOption = (data) => {
                 },
                 itemStyle: {
                     normal: {
-                        color: ["#000000"], //e98400
+                        color: "#000000", //e98400
                         width: 10,
                         //shadowColor: 'rgba(0,0,0,0.4)',
                         //shadowBlur: 10,
