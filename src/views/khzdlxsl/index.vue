@@ -176,26 +176,4 @@ const onGridReady = (params) => {
 
 </script>
 
-<!-- <style>
-.w110 {
-  width: 110px;
-}
-.w70 {
-  width: 70px;
-}
-.ml-10 {
-  margin-left: 10px;
-}
-.m-x-10 {
-  margin: 0 10px;
-}
-.m-x-5 {
-  margin: 0 5px;
-}
-
-.ag-cell {
-  text-align: center;
-  white-space: normal !important;  /* 允许文本换行 */
-  word-wrap: break-word;           /* 自动换行 */
-}
-</style> -->
+<style></style>
