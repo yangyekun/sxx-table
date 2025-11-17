@@ -1,0 +1,35 @@
+import { createApp } from 'vue'
+import './style.css'
+import App from './App.vue'
+import PrimeVue from 'primevue/config';
+import themePreset from './themePreset.js';
+import 'primeicons/primeicons.css'
+import ToastService from 'primevue/toastservice';
+import ConfirmationService from 'primevue/confirmationservice'; 
+import zh_cn from './assets/zh_cn.js';
+
+import OrpActions from '@/components/orpActions.vue'
+import BtnActions from '@/components/btnActions.vue'
+import './utils/ag-grid.js'
+import router from './router/index.js'
+
+import 'virtual:uno.css';
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+
+const app = createApp(App)
+
+app.use(router)
+app.component('OrpActions', OrpActions)
+app.component('BtnActions', BtnActions)
+
+app.use(PrimeVue, {
+  theme: {
+    preset: themePreset,
+  },
+  locale: zh_cn,
+  ripple: true,
+});
+app.use(ToastService).use(ConfirmationService);
+
+app.mount('#app')
