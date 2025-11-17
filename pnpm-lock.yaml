@@ -29,6 +29,9 @@ importers:
       dayjs:
         specifier: ^1.11.13
         version: 1.11.13
+      echarts:
+        specifier: ^6.0.0
+        version: 6.0.0
       primeicons:
         specifier: ^7.0.0
         version: 7.0.0
@@ -734,6 +737,9 @@ packages:
   duplexer@0.1.2:
     resolution: {integrity: sha1-Or5DrvODX4rgd9E23c4PJ2sEAOY=}
 
+  echarts@6.0.0:
+    resolution: {integrity: sha512-Tte/grDQRiETQP4xz3iZWSvoHrkCQtwqd6hs+mifXcjrCuo2iKWbajFObuLJVBlDIJlOzgQPd1hsaKt/3+OMkQ==}
+
   entities@4.5.0:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==, tarball: https://registry.npmmirror.com/entities/-/entities-4.5.0.tgz}
     engines: {node: '>=0.12'}
@@ -1033,6 +1039,9 @@ packages:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
     engines: {node: '>=6'}
 
+  tslib@2.3.0:
+    resolution: {integrity: sha1-gDuM2rPhK6WBpMpByIObuw2ssJ4=}
+
   ufo@1.5.4:
     resolution: {integrity: sha512-UsUk3byDzKd04EyoZ7U4DOlxQaD14JUKQl6/P7wiX4FNvUfm3XL246n9W5AmqwW5RSFJ27NAuM0iLscAOYUiGQ==, tarball: https://registry.npmmirror.com/ufo/-/ufo-1.5.4.tgz}
 
@@ -1136,6 +1145,9 @@ packages:
 
   webpack-virtual-modules@0.6.2:
     resolution: {integrity: sha512-66/V2i5hQanC51vBQKPH4aI8NMAcBW59FVBs+rC7eGHupMyfn34q7rZIE+ETlJ+XTevqfUhVVBgSUNSW2flEUQ==, tarball: https://registry.npmmirror.com/webpack-virtual-modules/-/webpack-virtual-modules-0.6.2.tgz}
+
+  zrender@6.0.0:
+    resolution: {integrity: sha512-41dFXEEXuJpNecuUQq6JlbybmnHaqqpGlbH1yxnA5V9MMP4SbohSVZsJIwz+zdjQXSSlR1Vc34EgH1zxyTDvhg==}
 
 snapshots:
 
@@ -1789,6 +1801,11 @@ snapshots:
 
   duplexer@0.1.2: {}
 
+  echarts@6.0.0:
+    dependencies:
+      tslib: 2.3.0
+      zrender: 6.0.0
+
   entities@4.5.0: {}
 
   es-define-property@1.0.1: {}
@@ -2104,6 +2121,8 @@ snapshots:
 
   totalist@3.0.1: {}
 
+  tslib@2.3.0: {}
+
   ufo@1.5.4: {}
 
   ufo@1.6.1: {}
@@ -2202,3 +2221,7 @@ snapshots:
       '@vue/shared': 3.5.13
 
   webpack-virtual-modules@0.6.2: {}
+
+  zrender@6.0.0:
+    dependencies:
+      tslib: 2.3.0

@@ -1,5 +1,6 @@
 import http from '@/utils/http.js';
 
+// 杨乐乐
 // 同步气象雨量数据记录
 export function selectQXRainSyc(data) {
   return http({
@@ -36,5 +37,15 @@ export function getTotalW(data) {
   return http({
     url: `/jb/hq/getTotalW?startTime=${data.stime}&endTime=${data.etime}`,
     method: 'get'
+  });
+}
+
+// 尹权哲
+// 站点已测补报
+export function listHs(data) {
+  return http({
+    url: '/water-flood/data/listHs',
+    method: 'post',
+    data
   });
 }
