@@ -57,3 +57,12 @@ export function getCcByStcd(data) {
     data
   });
 }
+
+
+export function getgcx(data) {
+  return http({
+    url: '/water-flood/data/getgcx',
+    method: 'post',
+    data
+  });
+}

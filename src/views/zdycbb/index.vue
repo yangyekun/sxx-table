@@ -43,6 +43,24 @@
         </div>
 
         <Dialog v-model:visible="visible" modal :header="title">
+            <template #header>
+                <div w-full flex-between>
+                    <h3>{{title}}</h3>
+
+                    <div flex-center mr-10px>
+                        <span>控制站水位：</span>
+                        <div flex-center>
+                            <Checkbox v-model="selectOption" inputId="ltz" name="size" value="鲁台子水位" />
+                            <label for="ltz" ml-5px> 鲁台子 </label>
+                        </div>
+                        <div flex-center ml-10px>
+                            <Checkbox v-model="selectOption" inputId="rhs" name="size" value="润河集水位" />
+                            <label for="rhs" ml-5px> 润河集 </label>
+                        </div>
+                    </div>
+                </div>
+            </template>
+            
             <div id="myChart" w-950px h-350px :loading="isChartLoading"></div>
             <div flex-between b-0 b-t-1px b-solid b-gray-300 pt-10px>
                 <div flex-center>
@@ -104,7 +122,7 @@
 import dayjs from 'dayjs';
 import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
-import { listHss, getCcByStcd } from '@/api/url.js';
+import { listHss, getCcByStcd, getgcx } from '@/api/url.js';
 import { hourArr } from "@/utils/index.js";
 import { getInterval1 } from '@/utils/chartUtil.js'
 
@@ -148,6 +166,8 @@ const stm_chart = ref('')
 const sHour_chart = ref('08')
 const etm_chart = ref('')
 const eHour_chart = ref('08')
+const ltz_chart = ref([])
+const rhj_chart = ref([])
 
 // 站点详情
 const siteVisible = ref(false)
@@ -205,6 +225,7 @@ onMounted(() => {
     getList();
 })
 
+// 初始化图表
 const initChart = () => {
     const chartDom = document.getElementById('myChart');
     if (!chartDom) return;
@@ -217,53 +238,11 @@ const initChart = () => {
     myChart && myChart.showLoading();
 }
 
-const getList = () => {
-    isLoading.value = true;
-    let params = {
-        stcd: '50101100',
-        stcds: [ "50101100", "50101000", "50400200","50100900" ],
-        stime: dayjs(stm.value).format("YYYY-MM-DD ") + `${sHour.value}:00`,
-        etime: dayjs(etm.value).format("YYYY-MM-DD ") + `${eHour.value}:00`,
-    }
-
-    getCcByStcd(params).then(res => {
-        isLoading.value = false;
-        if(res.code === 0) {
-            tableData.value = [
-                { stnm: "王家坝", stcd: "50101100", length: res.data.events.length, events: res.data.events, listBxsw: res.data.listBxsw },
-            ];
-
-            setTimeout(() => {
-                gridApi && gridApi.hideOverlay();
-                gridApi && gridApi.sizeColumnsToFit();
-            }, 50);
-        }
-    });
-}
-
-const madeChart = () => {
-    isLoading.value = true;
-    myChart && myChart.showLoading();
-    let params = {
-        stcd: '50101100',
-        stcds: [ "50101100", "50101000", "50400200","50100900" ],
-        stime: dayjs(stm_chart.value).format("YYYY-MM-DD ") + `${sHour_chart.value}:00`,
-        etime: dayjs(etm_chart.value).format("YYYY-MM-DD ") + `${eHour_chart.value}:00`,
-    };
-
-    getCcByStcd(params).then(res => {
-        isLoading.value = false;
-        if(res.code === 0) {
-            setOption(res.data.listBxsw, res.data.events);
-
-            myChart && myChart.hideLoading();
-        }
-    })
-}
-
+// 渲染图表
 const setOption = (data, events_data) => {
     let zdata = [], qdata = [];
     let data_q_sc = [], data_q_rzx = [], data_q_yzx = [], hcll = [];
+    let ltz_data = [], rhj_data = [];
     let minz = Infinity, maxz = -Infinity;
     let minq = Infinity, maxq = -Infinity;
     let events = events_data || [];
@@ -300,6 +279,15 @@ const setOption = (data, events_data) => {
         // minq = Math.min(minq, item.q || 0);
         // maxq = Math.max(maxq, item.q || 0);
     });
+    ltz_chart.value && ltz_chart.value.forEach(item => {
+        ltz_data.push({value: [item.tm, item.z]})
+
+        // minz = Math.min(minz, item.z);
+        // maxz = Math.max(maxz, item.z);
+    })
+    rhj_chart.value && rhj_chart.value.forEach(item => {
+        rhj_data.push({value: [item.tm, item.z]})
+    })
     const result = filterByRanges(data, events) || [];
     let series = [], areas = [];
     result.forEach(item => {
@@ -339,7 +327,6 @@ const setOption = (data, events_data) => {
             xAxisIndex: 0
         })
     });
-    // saveEvents.value = events;
 
     let diffz = maxz - minz;
     let intervalData = getInterval1({ min: minz, max: maxz, diff: diffz });
@@ -360,6 +347,8 @@ const setOption = (data, events_data) => {
                     "硬在线流量": false,
                     "实测流量": false,
                     "合成流量": true,
+                    "鲁台子水位": false,
+                    "润河集水位": false,
                 }
             }
         ],
@@ -538,7 +527,7 @@ const setOption = (data, events_data) => {
                 },
                 itemStyle: {
                     normal: {
-                        color: ["#00b7ee"],
+                        color: "#00b7ee",
                         width: 2,
                         //shadowColor: 'rgba(0,0,0,0.4)',
                         //shadowBlur: 10,
@@ -576,6 +565,34 @@ const setOption = (data, events_data) => {
                 //     },
                 //     data: events.value
                 // }
+            },{
+                name: '鲁台子水位',
+                type: 'line',
+                yAxisIndex: 0,
+                showSymbol: false,
+                hoverAnimation: false,
+                animationDuration: 5000,
+                data: ltz_data,
+                lineStyle: {
+                    normal: {
+                        color: "#009e96",
+                        width: 2,
+                    },
+                }
+            },{
+                name: '润河集水位',
+                type: 'line',
+                yAxisIndex: 0,
+                showSymbol: false,
+                hoverAnimation: false,
+                animationDuration: 5000,
+                data: rhj_data,
+                lineStyle: {
+                    normal: {
+                        color: "#ffba00",
+                        width: 2,
+                    },
+                }
             },{
                 name: "报汛流量",
                 type: "line",
@@ -770,18 +787,91 @@ const setOption = (data, events_data) => {
     // })
 }
 
+// 请求洪水场次数据
+const getList = () => {
+    isLoading.value = true;
+    let params = {
+        stcd: '50101100',
+        stcds: [ "50101100", "50101000", "50400200","50100900" ],
+        stime: dayjs(stm.value).format("YYYY-MM-DD ") + `${sHour.value}:00`,
+        etime: dayjs(etm.value).format("YYYY-MM-DD ") + `${eHour.value}:00`,
+    }
+
+    getCcByStcd(params).then(res => {
+        isLoading.value = false;
+        if(res.code === 0) {
+            tableData.value = [
+                { stnm: "王家坝", stcd: "50101100", length: res.data.events.length, events: res.data.events, listBxsw: res.data.listBxsw },
+            ];
+
+            setTimeout(() => {
+                gridApi && gridApi.hideOverlay();
+                gridApi && gridApi.sizeColumnsToFit();
+            }, 50);
+        }
+    });
+}
+
+// 查询过程线数据
+const madeChart = () => {
+    isLoading.value = true;
+    myChart && myChart.showLoading();
+    let params = {
+        stcd: '50101100',
+        stcds: [ "50101100", "50101000", "50400200","50100900" ],
+        stime: dayjs(stm_chart.value).format("YYYY-MM-DD ") + `${sHour_chart.value}:00`,
+        etime: dayjs(etm_chart.value).format("YYYY-MM-DD ") + `${eHour_chart.value}:00`,
+    };
+
+    getCcByStcd(params).then(res => {
+        isLoading.value = false;
+        if(res.code === 0) {
+            setOption(res.data.listBxsw, res.data.events);
+
+            myChart && myChart.hideLoading();
+        }
+    })
+}
+
 // 查看过程线
 const handleSiteClick = (data) => {
     visible.value = true;
+    search_kzz(data);
 
     setTimeout(() => {
         initChart();
 
-        setOption(data.listBxsw, data.events);
-        myChart && myChart.hideLoading();
+        // setOption(data.listBxsw, data.events);
+        // myChart && myChart.hideLoading();
     }, 0);
 }
 
+const search_kzz = async (data) => {
+    let params1 = {
+        stcds: ['50103100'],
+        stime: dayjs(stm_chart.value).format("YYYY-MM-DD ") + `${sHour_chart.value}:00`,
+        etime: dayjs(etm_chart.value).format("YYYY-MM-DD ") + `${eHour_chart.value}:00`,
+    }
+    let params2 = {
+        stcds: ['50102350'],
+        stime: dayjs(stm_chart.value).format("YYYY-MM-DD ") + `${sHour_chart.value}:00`,
+        etime: dayjs(etm_chart.value).format("YYYY-MM-DD ") + `${eHour_chart.value}:00`,
+    }
+    const res1 = await getgcx(params1)
+    const res2 = await getgcx(params2)
+
+    if(res1.code == 0) {
+        ltz_chart.value = res1.data;
+    }
+    if(res2.code == 0) {
+        rhj_chart.value = res2.data;
+    }
+
+    setOption(data.listBxsw, data.events);
+    myChart && myChart.hideLoading();
+}
+
+// 查看详情
 const handlePreview = (data) => {
     siteVisible.value = true;
     siteTitle.value = `${data.stnm} 测报详情`;
@@ -855,6 +945,16 @@ watch(() => selectOption.value, (params) => {
         selected["水位"] = true;
     } else {
         selected["水位"] = false;
+    }
+    if(params.includes("润河集水位")) {
+        selected["润河集水位"] = true;
+    } else {
+        selected["润河集水位"] = false;
+    }
+    if(params.includes("鲁台子水位")) {
+        selected["鲁台子水位"] = true;
+    } else {
+        selected["鲁台子水位"] = false;
     }
     if(params.includes("报汛流量")) {
         selected["报汛流量"] = true;
