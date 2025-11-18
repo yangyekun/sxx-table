@@ -40,11 +40,19 @@ export function getTotalW(data) {
   });
 }
 
-// 尹权哲
-// 站点已测补报
-export function listHs(data) {
+// 尹权哲 /water-flood
+// 站点以测补报
+export function listHss(data) {
   return http({
-    url: '/water-flood/data/listHs',
+    url: 'http://192.168.5.33:8080/data/listHss',
+    method: 'post',
+    data
+  });
+}
+
+export function getCcByStcd(data) {
+  return http({
+    url: 'http://192.168.5.33:8080/data/getCcByStcd',
     method: 'post',
     data
   });
