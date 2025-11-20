@@ -51,11 +51,11 @@
                         <span>控制站水位：</span>
                         <div flex-center>
                             <Checkbox v-model="selectOption" inputId="ltz" name="size" value="鲁台子水位" />
-                            <label for="ltz" ml-5px> 鲁台子 </label>
+                            <label for="ltz" ml-5px class="text-#009fff"> 鲁台子 </label>
                         </div>
                         <div flex-center ml-10px>
                             <Checkbox v-model="selectOption" inputId="rhs" name="size" value="润河集水位" />
-                            <label for="rhs" ml-5px> 润河集 </label>
+                            <label for="rhs" ml-5px class="text-#ffba00"> 润河集 </label>
                         </div>
                     </div>
                 </div>
@@ -75,27 +75,27 @@
                 <div flex-end>
                     <div flex-center>
                         <Checkbox v-model="selectOption" inputId="ingredient1" name="size" value="水位" />
-                        <label for="ingredient1" ml-5px> 水位 </label>
+                        <label for="ingredient1" ml-5px class="text-#00b7ee"> 水位 </label>
                     </div>
                     <div flex-center ml-10px v-tooltip="'报汛流量[12345]'">
                         <Checkbox v-model="selectOption" inputId="ingredient2" name="size" value="报汛流量" />
-                        <label for="ingredient2" ml-5px> 报汛流量 </label>
+                        <label for="ingredient2" ml-5px class="text-#ff0000"> 报汛流量 </label>
                     </div>
                     <div flex-center ml-10px v-tooltip="'软在线流量[9]'">
                         <Checkbox v-model="selectOption" inputId="ingredient3" name="size" value="软在线" />
-                        <label for="ingredient3" ml-5px> 软在线 </label>
+                        <label for="ingredient3" ml-5px class="text-#9900ff"> 软在线 </label>
                     </div>
                     <div flex-center ml-10px v-tooltip="'硬在线流量[6]'">
                         <Checkbox v-model="selectOption" inputId="ingredient4" name="size" value="硬在线" />
-                        <label for="ingredient4" ml-5px> 硬在线 </label>
+                        <label for="ingredient4" ml-5px class="text-#ff00ff"> 硬在线 </label>
                     </div>
                     <div flex-center ml-10px v-tooltip="'实测流量[235]'">
                         <Checkbox v-model="selectOption" inputId="ingredient5" name="size" value="实测流量" />
-                        <label for="ingredient5" ml-5px> 实测流量 </label>
+                        <label for="ingredient5" ml-5px class="text-#000000"> 实测流量 </label>
                     </div>
                     <div flex-center ml-10px v-tooltip="'合成流量'">
                         <Checkbox v-model="selectOption" inputId="ingredient6" name="size" value="合成流量" />
-                        <label for="ingredient6" ml-5px> 合成流量 </label>
+                        <label for="ingredient6" ml-5px class="text-#6fb94b"> 合成流量 </label>
                     </div>
                 </div>
             </div>
@@ -308,16 +308,16 @@ const setOption = (data, events_data) => {
             },
             lineStyle: {
                 normal: {
-                    color: "#ff00ff",
+                    color: "#6fb94b",
                     width: 2,
                 },
             },
             itemStyle: {
                 normal: {
-                    color: "orange",
+                    color: "#6fb94b",
                     width: 3,
                 },
-            },
+            }
         })
     })
     events && events.forEach(item => {
@@ -352,12 +352,20 @@ const setOption = (data, events_data) => {
                 }
             }
         ],
+        dataZoom: [
+            {
+                type: 'inside',  // 重点：设置为 inside，开启鼠标滚轮缩放
+                xAxisIndex: 0,   // 控制第一个 x 轴
+                start: 0,        // 默认数据窗口范围 0%
+                end: 100         // 默认数据窗口范围 100%
+            }
+        ],
         brush: {
             transformable: false,
             xAxisIndex: 'all',
             brushLink: 'all',
             outOfBrush: {
-                colorAlpha: 0.1
+                colorAlpha: 1
             }
         },
         toolbox: {
@@ -575,7 +583,7 @@ const setOption = (data, events_data) => {
                 data: ltz_data,
                 lineStyle: {
                     normal: {
-                        color: "#009e96",
+                        color: "#009fff",
                         width: 2,
                     },
                 }
@@ -621,7 +629,7 @@ const setOption = (data, events_data) => {
                 },
                 itemStyle: {
                     normal: {
-                    color: ["#ff0000"],
+                    color: "#ff0000",
                     width: 1,
                     //shadowColor: 'rgba(0,0,0,0.4)',
                     //shadowBlur: 10,
@@ -639,15 +647,15 @@ const setOption = (data, events_data) => {
                     "path://d=M22.2,4c0,0,0.5,0.6,0,1.1l-6.8,6.8l6.9,6.9c0.5,0.5,0,1.1,0,1.1L20,22.3c0,0-0.6,0.5-1.1,0L12,15.4l-6.9,6.9c-0.5,0.5-1.1,0-1.1,0L1.7,20c0,0-0.5-0.6,0-1.1L8.6,12L1.7,5.1C1.2,4.6,1.7,4,1.7,4L4,1.7c0,0,0.6-0.5,1.1,0L12,8.5l6.8-6.8c0.5-0.5,1.1,0,1.1,0L22.2,4z",
                 symbolSize: 10,
                 hoverAnimation: false,
-                label: {
-                    normal: {
-                        show: false,
-                        position: "top",
-                    },
-                },
+                // label: {
+                //     normal: {
+                //         show: false,
+                //         position: "top",
+                //     },
+                // },
                 lineStyle: {
                     normal: {
-                        color: "#ff00ff",
+                        color: "#000000",
                         width: 2,
                     },
                 },
@@ -660,7 +668,7 @@ const setOption = (data, events_data) => {
                         //shadowOffsetY: 10
                     },
                 },
-                tooltip: {},
+                // tooltip: {},
             },{
                 /*
                         为了避免因为水位流量关系量程问题出现的这种平头现象  软在线 可以不用连线 直接显示点 因为点足够多，并不影响效果
@@ -688,11 +696,11 @@ const setOption = (data, events_data) => {
                 //     },
                 // },
                 itemStyle: {
-                    // normal: {
-                    // color: "rgba(232, 4, 4, 1)"//
-                    color: "#9900ff",
-                    //width: 3
-                    //  }
+                    normal: {
+                        // color: "rgba(232, 4, 4, 1)"//
+                        color: "#9900ff",
+                        //width: 3
+                    }
                 },
             },{
                 name: "硬在线",
@@ -789,27 +797,6 @@ const setOption = (data, events_data) => {
 
 // 请求洪水场次数据
 const getList = async (isChart) => {
-    // isLoading.value = true;
-    // let params = {
-    //     stcd: '50101100',
-    //     stcds: [ "50101100", "50101000", "50400200","50100900" ],
-    //     stime: dayjs(stm.value).format("YYYY-MM-DD ") + `${sHour.value}:00`,
-    //     etime: dayjs(etm.value).format("YYYY-MM-DD ") + `${eHour.value}:00`,
-    // }
-
-    // getCcByStcd(params).then(res => {
-    //     isLoading.value = false;
-    //     if(res.code === 0) {
-    //         tableData.value = [
-    //             { stnm: "王家坝", stcd: "50101100", length: res.data.events.length, events: res.data.events, listBxsw: res.data.listBxsw },
-    //         ];
-
-    //         setTimeout(() => {
-    //             gridApi && gridApi.hideOverlay();
-    //             gridApi && gridApi.sizeColumnsToFit();
-    //         }, 50);
-    //     }
-    // });
     isLoading.value = true;
     myChart && myChart.showLoading();
     let params = {
