@@ -24,7 +24,7 @@
                 <DatePicker v-model="etm" dateFormat="yy-mm-dd" w-110px ml-10px />
                 <Select v-model="eHour" :options="hourArr" optionLabel="label" optionValue="value" w-70px m-x-5px />
 
-                <Button label="查询" size="small" @click="getList" :disabled="isLoading" ml-10px style="padding: 5px 25px;" />
+                <Button label="查询" size="small" @click="getList(false)" :disabled="isLoading" ml-10px style="padding: 5px 25px;" />
                 <Button label="导出" size="small" severity="success" v-if="tableData.length" @click="handleExport" ml-10px style="padding: 5px 25px;"  />
             </div>
         </div>
@@ -70,7 +70,7 @@
                     <DatePicker v-model="etm_chart" dateFormat="yy-mm-dd" w-95px ml-5px />
                     <Select v-model="eHour_chart" :options="hourArr" optionLabel="label" optionValue="value" w-70px m-x-5px />
 
-                    <Button label="查询" size="small" @click="madeChart" :disabled="isLoading" style="padding: 5px 25px;" />
+                    <Button label="查询" size="small" @click="getList(true)" :disabled="isLoading" style="padding: 5px 25px;" />
                 </div>
                 <div flex-end>
                     <div flex-center>
@@ -102,7 +102,7 @@
         </Dialog>
 
         <Dialog v-model:visible="siteVisible" modal :header="siteTitle">
-            <div w-780px h-350px class="page-main" p-0px>
+            <div w-920px h-440px class="page-main" p-0px>
                 <ag-grid-vue
                     class="ag-theme-alpine"
                     style="flex: 1;"
@@ -175,12 +175,12 @@ const siteTitle = ref('站点详情')
 
 let siteViewData = ref([])
 let siteColumnDefs = ref([
-    { field: "stnm", title: "站名", headerName: '站名', align: 'center', width: 80 },
-    { field: "stcd", title: "站码", headerName: '站码', align: 'center', width: 80 },
+    { field: "stnm", title: "站名", headerName: '站名', align: 'center', width: 90 },
+    { field: "stcd", title: "站码", headerName: '站码', align: 'center', width: 90 },
     { field: "pc", title: "计划测次", headerName: '计划测次', align: 'center', width: 90 },
     { field: "sc", title: "实际测次", headerName: '实际测次', align: 'center', width: 90 },
-    { field: "tm", title: "测流时间", headerName: '测流时间', align: 'center', width: 100 },
-    { field: "gz", title: "规则", headerName: '规则', align: 'center' },
+    { field: "tm", title: "测流时间", headerName: '测流时间', align: 'center', width: 150 },
+    { field: "gz", title: "规则", headerName: '规则', align: 'center', width: 300 },
 ])
 const defColOption2 = {}
 
@@ -209,7 +209,7 @@ onMounted(() => {
             }
         },
         { field: "stcd", title: "站码", headerName: '站码' },
-        { field: "length", title: "洪水场次", headerName: '洪水场次' },
+        { field: "events.length", title: "洪水场次", headerName: '洪水场次' },
         {
             field: "", 
             title: "操作", 
@@ -341,14 +341,14 @@ const setOption = (data, events_data) => {
                 show: false,
                 data: [],
                 selected: {
-                    "水位": true,
-                    "报汛流量": false,
-                    "软在线流量": false,
-                    "硬在线流量": false,
-                    "实测流量": false,
-                    "合成流量": true,
-                    "鲁台子水位": false,
-                    "润河集水位": false,
+                    "水位": selectOption.value.includes("水位") ? true : false,
+                    "报汛流量": selectOption.value.includes("报汛流量") ? true : false,
+                    "软在线流量": selectOption.value.includes("软在线流量") ? true : false,
+                    "硬在线流量": selectOption.value.includes("硬在线流量") ? true : false,
+                    "实测流量": selectOption.value.includes("实测流量") ? true : false,
+                    "合成流量": selectOption.value.includes("合成流量") ? true : false,
+                    "鲁台子水位": selectOption.value.includes("鲁台子水位") ? true : false,
+                    "润河集水位": selectOption.value.includes("润河集水位") ? true : false,
                 }
             }
         ],
@@ -788,32 +788,28 @@ const setOption = (data, events_data) => {
 }
 
 // 请求洪水场次数据
-const getList = () => {
-    isLoading.value = true;
-    let params = {
-        stcd: '50101100',
-        stcds: [ "50101100", "50101000", "50400200","50100900" ],
-        stime: dayjs(stm.value).format("YYYY-MM-DD ") + `${sHour.value}:00`,
-        etime: dayjs(etm.value).format("YYYY-MM-DD ") + `${eHour.value}:00`,
-    }
+const getList = async (isChart) => {
+    // isLoading.value = true;
+    // let params = {
+    //     stcd: '50101100',
+    //     stcds: [ "50101100", "50101000", "50400200","50100900" ],
+    //     stime: dayjs(stm.value).format("YYYY-MM-DD ") + `${sHour.value}:00`,
+    //     etime: dayjs(etm.value).format("YYYY-MM-DD ") + `${eHour.value}:00`,
+    // }
 
-    getCcByStcd(params).then(res => {
-        isLoading.value = false;
-        if(res.code === 0) {
-            tableData.value = [
-                { stnm: "王家坝", stcd: "50101100", length: res.data.events.length, events: res.data.events, listBxsw: res.data.listBxsw },
-            ];
+    // getCcByStcd(params).then(res => {
+    //     isLoading.value = false;
+    //     if(res.code === 0) {
+    //         tableData.value = [
+    //             { stnm: "王家坝", stcd: "50101100", length: res.data.events.length, events: res.data.events, listBxsw: res.data.listBxsw },
+    //         ];
 
-            setTimeout(() => {
-                gridApi && gridApi.hideOverlay();
-                gridApi && gridApi.sizeColumnsToFit();
-            }, 50);
-        }
-    });
-}
-
-// 查询过程线数据
-const madeChart = () => {
+    //         setTimeout(() => {
+    //             gridApi && gridApi.hideOverlay();
+    //             gridApi && gridApi.sizeColumnsToFit();
+    //         }, 50);
+    //     }
+    // });
     isLoading.value = true;
     myChart && myChart.showLoading();
     let params = {
@@ -823,30 +819,6 @@ const madeChart = () => {
         etime: dayjs(etm_chart.value).format("YYYY-MM-DD ") + `${eHour_chart.value}:00`,
     };
 
-    getCcByStcd(params).then(res => {
-        isLoading.value = false;
-        if(res.code === 0) {
-            setOption(res.data.listBxsw, res.data.events);
-
-            myChart && myChart.hideLoading();
-        }
-    })
-}
-
-// 查看过程线
-const handleSiteClick = (data) => {
-    visible.value = true;
-    search_kzz(data);
-
-    setTimeout(() => {
-        initChart();
-
-        // setOption(data.listBxsw, data.events);
-        // myChart && myChart.hideLoading();
-    }, 0);
-}
-
-const search_kzz = async (data) => {
     let params1 = {
         stcds: ['50103100'],
         stime: dayjs(stm_chart.value).format("YYYY-MM-DD ") + `${sHour_chart.value}:00`,
@@ -859,6 +831,7 @@ const search_kzz = async (data) => {
     }
     const res1 = await getgcx(params1)
     const res2 = await getgcx(params2)
+    const res3 = await getCcByStcd(params)
 
     if(res1.code == 0) {
         ltz_chart.value = res1.data;
@@ -866,9 +839,36 @@ const search_kzz = async (data) => {
     if(res2.code == 0) {
         rhj_chart.value = res2.data;
     }
+    if(res3.code == 0) {
+        const {events, listBxsw} = res3.data;
+        if(isChart) {
+            setOption(listBxsw, events);
+        } else {
+            tableData.value = [
+                { stnm: "王家坝", stcd: "50101100", events: events, listBxsw: listBxsw },
+            ];
 
-    setOption(data.listBxsw, data.events);
+            setTimeout(() => {
+                gridApi && gridApi.hideOverlay();
+                gridApi && gridApi.sizeColumnsToFit();
+            });
+        }
+    }
+
+    isLoading.value = false;
     myChart && myChart.hideLoading();
+}
+
+// 查看过程线
+const handleSiteClick = (data) => {
+    visible.value = true;
+
+    setTimeout(() => {
+        initChart();
+
+        setOption(data.listBxsw, data.events);
+        myChart && myChart.hideLoading();
+    }, 0);
 }
 
 // 查看详情
