@@ -25,7 +25,7 @@
                 <Select v-model="eHour" :options="hourArr" optionLabel="label" optionValue="value" w-70px m-x-5px />
 
                 <Button label="查询" size="small" @click="getList(false)" :disabled="isLoading" ml-10px style="padding: 5px 25px;" />
-                <Button label="导出" size="small" severity="success" v-if="tableData.length" @click="handleExport" ml-10px style="padding: 5px 25px;"  />
+                <Button label="导出" size="small" severity="success" v-if="tableData.length" @click="handleExport(1)" ml-10px style="padding: 5px 25px;"  />
             </div>
         </div>
 
@@ -43,24 +43,21 @@
         </div>
 
         <Dialog v-model:visible="visible" modal :header="title">
-            <template #header>
-                <div w-full flex-between>
-                    <h3>{{title}}</h3>
-
-                    <div flex-center mr-10px>
-                        <span>控制站水位：</span>
-                        <div flex-center>
-                            <Checkbox v-model="selectOption" inputId="ltz" name="size" value="鲁台子水位" />
-                            <label for="ltz" ml-5px class="text-#009fff"> 鲁台子 </label>
-                        </div>
-                        <div flex-center ml-10px>
-                            <Checkbox v-model="selectOption" inputId="rhs" name="size" value="润河集水位" />
-                            <label for="rhs" ml-5px class="text-#ffba00"> 润河集 </label>
-                        </div>
+            <div flex-end mb-10px>
+                <div flex-center mr-10px>
+                    <span>控制站水位：</span>
+                    <div flex-center>
+                        <Checkbox v-model="selectOption" inputId="ltz" name="size" value="鲁台子水位" />
+                        <label for="ltz" ml-5px class="text-#009fff"> 鲁台子 </label>
+                    </div>
+                    <div flex-center ml-10px>
+                        <Checkbox v-model="selectOption" inputId="rhs" name="size" value="润河集水位" />
+                        <label for="rhs" ml-5px class="text-#ffba00"> 润河集 </label>
                     </div>
                 </div>
-            </template>
-            
+
+                <i title="测报详情" class="pi pi-table" cursor-pointer style="font-size: 20px;" @click="showCbTable"></i>
+            </div>
             <div id="myChart" w-950px h-350px :loading="isChartLoading"></div>
             <div flex-between b-0 b-t-1px b-solid b-gray-300 pt-10px>
                 <div flex-center>
@@ -98,6 +95,24 @@
                         <label for="ingredient6" ml-5px class="text-#6fb94b"> 合成流量 </label>
                     </div>
                 </div>
+            </div>
+            <div v-if="cbVisible" class="page-main" p-0px w-950px h-300px mt-10px>
+                <div flex-between>
+                    <h3>测报详情</h3>
+                    <p>
+                        <i title="导出" class="pi pi-download" cursor-pointer style="font-size: 20px;" @click="handleExport(2)"></i>
+                    </p>
+                </div>
+                <ag-grid-vue
+                    class="ag-theme-alpine"
+                    style="flex:1;"
+                    :rowData="siteViewData" 
+                    :columnDefs="siteColumnDefs" 
+                    @grid-ready="onGridReady2"
+                    :defaultColDef="defColOption2"
+                    theme="legacy"
+                >
+                </ag-grid-vue>
             </div>
         </Dialog>
 
@@ -160,6 +175,7 @@ const defColOption = {
 const selectOption = ref(['水位', '合成流量'])
 
 const visible = ref(false)
+const cbVisible = ref(false)
 const title = ref('王家坝过程线图')
 const isChartLoading = ref(false)
 const stm_chart = ref('')
@@ -238,6 +254,10 @@ const initChart = () => {
     myChart && myChart.showLoading();
 }
 
+const showCbTable = () => {
+    cbVisible.value = !cbVisible.value;
+}
+
 // 渲染图表
 const setOption = (data, events_data) => {
     let zdata = [], qdata = [];
@@ -246,6 +266,13 @@ const setOption = (data, events_data) => {
     let minz = Infinity, maxz = -Infinity;
     let minq = Infinity, maxq = -Infinity;
     let events = events_data || [];
+
+    let yctms = siteViewData.value.flatMap(item => item.data).map(item => {
+        let tm = item.tm? dayjs(item.tm).format("YYYY-MM-DD HH:mm:ss") : null;
+        return {
+            value: [tm, item.z]
+        }
+    });
 
     data && data.forEach(item => {
         let tm = item.tm;
@@ -334,7 +361,21 @@ const setOption = (data, events_data) => {
     let option = {
         tooltip: {
             trigger: 'axis',
-            // formatter: this.tooltipFormatterkr,
+            formatter: function(params) {
+                let html = "", tm = params[0].value[0];
+
+                params.forEach(item => {
+                    if(item.seriesName == '应测') {
+                        html += item.seriesName
+                    } else if(item.seriesName.includes("水位")) {
+                        html += item.seriesName + ": " + item.value[1] + " m<br>"
+                    } else if(item.seriesName.includes("流量")) {
+                        html += item.seriesName + ": " + item.value[1] + " m³/s<br>"
+                    }
+                })
+
+                return tm + "<br>" + html;
+            },
         },
         legend: [
             {
@@ -349,6 +390,7 @@ const setOption = (data, events_data) => {
                     "合成流量": selectOption.value.includes("合成流量") ? true : false,
                     "鲁台子水位": selectOption.value.includes("鲁台子水位") ? true : false,
                     "润河集水位": selectOption.value.includes("润河集水位") ? true : false,
+                    "应测": true
                 }
             }
         ],
@@ -365,7 +407,7 @@ const setOption = (data, events_data) => {
             xAxisIndex: 'all',
             brushLink: 'all',
             outOfBrush: {
-                colorAlpha: 1
+                colorAlpha: 1 // 1
             }
         },
         toolbox: {
@@ -547,26 +589,27 @@ const setOption = (data, events_data) => {
                     // symbol: 'pin',
                     // symbolSize: 10,
                     label: {
-                    normal: {
-                        show: true,
-                        //  position: 'bottom',
-                        offset: [0, 15],
-                        textStyle: {
-                        color: "#00b7ee",
+                        normal: {
+                            show: true,
+                            //  position: 'bottom',
+                            offset: [0, 15],
+                            textStyle: {
+                            color: "#00b7ee",
+                            },
                         },
                     },
-                    },
                     itemStyle: {
-                    normal: {
-                        color: "rgba(255, 255, 255, 0.1)",
-                        //shadowColor: 'rgba(255, 0, 0, 0.5)',
-                    },
+                        normal: {
+                            color: "rgba(255, 255, 255, 0.1)",
+                            //shadowColor: 'rgba(255, 0, 0, 0.5)',
+                        },
                     },
                     data: [
-                    { type: "max", name: "最大值" },
-                    { type: "min", name: "最小值" },
+                        { type: "max", name: "最大值" },
+                        { type: "min", name: "最小值" }
                     ],
                 },
+                // markLine: markLine,
                 // markArea: {
                 //     itemStyle: {
                 //         color: 'rgba(255, 173, 177, 0.4)'
@@ -732,34 +775,30 @@ const setOption = (data, events_data) => {
                 },
             },
             ...series,
-            // {
-            //     name: "合成流量",
-            //     type: "line",
-            //     yAxisIndex: 1,
-            //     data: hcll,
-            //     connectNulls: true,
-            //     showSymbol: false,
-            //     symbolSize: 10,
-            //     hoverAnimation: false,
-            //     label: {
-            //         normal: {
-            //             show: true,
-            //             position: "top",
-            //         },
-            //     },
-            //     lineStyle: {
-            //         normal: {
-            //             color: "#ff00ff",
-            //             width: 2,
-            //         },
-            //     },
-            //     itemStyle: {
-            //         normal: {
-            //             color: "orange",
-            //             width: 3,
-            //         },
-            //     },
-            // },
+            {
+                name: '应测',
+                type: 'scatter',
+                yAxisIndex: 0,
+                showSymbol: false,
+                connectNulls: true,
+                symbol:
+                    "path://d=M511.31136,1016.0068266666666c-68.65152,0-135.2832-13.46304-198.04928-40.00768-60.5888-25.62688-114.99008-62.30272-161.69344-109.00224-46.69952-46.69952-83.37408-101.09952-109.00096-161.6896C16.02048,642.5386666666666,2.56,575.9095466666666,2.56,507.25674666666663c0-68.65152,13.46176-135.28448,40.00768-198.04928,25.62688-60.5888,62.30144-114.99008,109.00096-161.69088,46.70208-46.7008,101.10336-83.3728,161.69344-109.00224C376.02816,11.967146666666668,442.65984-1.4933333333333332,511.31136-1.4933333333333332c68.6528,0,135.28448,13.46176,198.05056,40.00768,60.5888,25.62688,114.99136,62.30144,161.6896,109.00224,46.69952,46.7008,83.37664,101.09952,109.00224,161.69088,26.5472,62.76608,40.00768,129.39776,40.00768,198.04928,0,68.6528-13.46176,135.28448-40.00768,198.05056-25.62688,60.58752-62.30144,114.99008-109.00224,161.6896-46.69952,46.70208-101.09824,83.37792-161.6896,109.00224-62.7648,26.5472-129.3952,40.00768-198.05056,40.00768z,m0-883.3728c-206.56896,0-374.62272,168.05504-374.62272,374.62272s168.05504,374.62272,374.62272,374.62272,374.624-168.05504,374.624-374.62272c0-206.56896-168.05632-374.62272-374.624-374.62272z;path://d=M512.43264,250.92906666666667c141.088,0,255.49952,114.304,255.49952,255.30752s-114.4128,255.30752-255.49952,255.30752-255.49952-114.304-255.49952-255.30752,114.41152-255.30752,255.49952-255.30752z",
+                symbolSize: 15,
+                hoverAnimation: false,
+                data: yctms,
+                lineStyle: {
+                    normal: {
+                        color: "#1afa29",
+                        width: 2,
+                    },
+                },
+                itemStyle: {
+                    normal: {
+                        color: "#1afa29",
+                        width: 10
+                    },
+                },
+            }
         ]
     }
 
@@ -801,9 +840,17 @@ const getList = async (isChart) => {
     myChart && myChart.showLoading();
     let params = {
         stcd: '50101100',
+        stcdTs: ["50103100", "50102350"],
         stcds: [ "50101100", "50101000", "50400200","50100900" ],
         stime: dayjs(stm_chart.value).format("YYYY-MM-DD ") + `${sHour_chart.value}:00`,
         etime: dayjs(etm_chart.value).format("YYYY-MM-DD ") + `${eHour_chart.value}:00`,
+        qz: [
+            { "tm": 24, "pc": 3 },
+            { "z": 27.5, "pc": 3 },
+            { "z": "25", "q": 2000, "pc": 2 },
+            { "z": 23, "q": 1000, "pc": 1 }
+        ],
+        dataTs: { stcd:"50102350" }
     };
 
     let params1 = {
@@ -818,7 +865,7 @@ const getList = async (isChart) => {
     }
     const res1 = await getgcx(params1)
     const res2 = await getgcx(params2)
-    const res3 = await getCcByStcd(params)
+    const res3 = await listHss(params)
 
     if(res1.code == 0) {
         ltz_chart.value = res1.data;
@@ -827,13 +874,15 @@ const getList = async (isChart) => {
         rhj_chart.value = res2.data;
     }
     if(res3.code == 0) {
-        const {events, listBxsw} = res3.data;
+        const {events, listBxsw, datePcVos} = res3.data;
+        
         if(isChart) {
             setOption(listBxsw, events);
         } else {
             tableData.value = [
-                { stnm: "王家坝", stcd: "50101100", events: events, listBxsw: listBxsw },
+                { ...res3.data, stnm: "王家坝", stcd: "50101100" }
             ];
+            siteViewData.value = datePcVos || [];
 
             setTimeout(() => {
                 gridApi && gridApi.hideOverlay();
@@ -845,9 +894,59 @@ const getList = async (isChart) => {
     isLoading.value = false;
     myChart && myChart.hideLoading();
 }
+// const getList = async (isChart) => {
+//     isLoading.value = true;
+//     myChart && myChart.showLoading();
+//     let params = {
+//         stcd: '50101100',
+//         stcds: [ "50101100", "50101000", "50400200","50100900" ],
+//         stime: dayjs(stm_chart.value).format("YYYY-MM-DD ") + `${sHour_chart.value}:00`,
+//         etime: dayjs(etm_chart.value).format("YYYY-MM-DD ") + `${eHour_chart.value}:00`,
+//     };
+
+//     let params1 = {
+//         stcds: ['50103100'],
+//         stime: dayjs(stm_chart.value).format("YYYY-MM-DD ") + `${sHour_chart.value}:00`,
+//         etime: dayjs(etm_chart.value).format("YYYY-MM-DD ") + `${eHour_chart.value}:00`,
+//     }
+//     let params2 = {
+//         stcds: ['50102350'],
+//         stime: dayjs(stm_chart.value).format("YYYY-MM-DD ") + `${sHour_chart.value}:00`,
+//         etime: dayjs(etm_chart.value).format("YYYY-MM-DD ") + `${eHour_chart.value}:00`,
+//     }
+//     const res1 = await getgcx(params1)
+//     const res2 = await getgcx(params2)
+//     const res3 = await getCcByStcd(params)
+
+//     if(res1.code == 0) {
+//         ltz_chart.value = res1.data;
+//     }
+//     if(res2.code == 0) {
+//         rhj_chart.value = res2.data;
+//     }
+//     if(res3.code == 0) {
+//         const {events, listBxsw} = res3.data;
+//         if(isChart) {
+//             setOption(listBxsw, events);
+//         } else {
+//             tableData.value = [
+//                 { stnm: "王家坝", stcd: "50101100", events: events, listBxsw: listBxsw },
+//             ];
+
+//             setTimeout(() => {
+//                 gridApi && gridApi.hideOverlay();
+//                 gridApi && gridApi.sizeColumnsToFit();
+//             });
+//         }
+//     }
+
+//     isLoading.value = false;
+//     myChart && myChart.hideLoading();
+// }
 
 // 查看过程线
 const handleSiteClick = (data) => {
+    cbVisible.value = false;
     visible.value = true;
 
     setTimeout(() => {
@@ -862,56 +961,77 @@ const handleSiteClick = (data) => {
 const handlePreview = (data) => {
     siteVisible.value = true;
     siteTitle.value = `${data.stnm} 测报详情`;
-    let params = {
-        stcds: [ "50101100","50101000","50400200","50100900"],
-        stcdTs: ["50103100", "50102350"],
-        events: data.events,
-        stcd: "50101100",
-        stime: dayjs(stm.value).format("YYYY-MM-DD ") + `${sHour.value}:00`,
-        etime: dayjs(etm.value).format("YYYY-MM-DD ") + `${eHour.value}:00`,
-        qz: [
-            { "tm": 24, "pc": 3 },
-            { "z": 27.5, "pc": 3 },
-            { "z": "25", "q": 2000, "pc": 2 },
-            { "z": 23, "q": 1000, "pc": 1 }
-        ],
-        dataTs: { stcd:"50102350" }
-    }
 
-    listHss(params).then(res => {
-        if(res.code === 0) {
-            siteViewData.value = res.data;
-        }
-    })
+    // siteViewData.value = data.datePcVos || [];
+    
+    // let params = {
+    //     stcds: [ "50101100","50101000","50400200","50100900"],
+    //     stcdTs: ["50103100", "50102350"],
+    //     events: data.events,
+    //     stcd: "50101100",
+    //     stime: dayjs(stm.value).format("YYYY-MM-DD ") + `${sHour.value}:00`,
+    //     etime: dayjs(etm.value).format("YYYY-MM-DD ") + `${eHour.value}:00`,
+    //     qz: [
+    //         { "tm": 24, "pc": 3 },
+    //         { "z": 27.5, "pc": 3 },
+    //         { "z": "25", "q": 2000, "pc": 2 },
+    //         { "z": 23, "q": 1000, "pc": 1 }
+    //     ],
+    //     dataTs: { stcd:"50102350" }
+    // }
+
+    // listHss(params).then(res => {
+    //     if(res.code === 0) {
+    //         siteViewData.value = res.data;
+    //     }
+    // })
 }
 
 // 导出
-const handleExport = () => {
-  const config = {
-    headers: [
-        { field: "stnm", title: "站名", headerName: '站名', width: 20 },
-        { field: "stcd", title: "站码", headerName: '站码', width: 20 },
-        { field: "length", title: "洪水场次", headerName: '洪水场次', width: 20 },
-    ],
-    data: tableData.value,
-    headerDeep:1,
-    fileName: '站点以测补报数据'
-  };
+const handleExport = (tag) => {
+    let fileName = "", headers = [], data = [];
 
-  // http://60.174.203.118:5233/export // 公司
-  // http://10.34.1.25:5233/export // 省局
-  axios.post('http://10.34.1.25:5233/export', config).then(res => {
-    if (res.data.code === 0) {
-      const a = document.createElement('a')
-      a.href = res.data.data;
-      a.click();
-    } else {
-      toast.add({ severity: 'error', summary: '导出失败，请重试', detail: '', group: 'tc', life: 3000 });
+    switch (tag) {
+        case 1:
+            fileName = '站点以测补报数据';
+            headers = [
+                { field: "stnm", title: "站名", headerName: '站名', width: 20 },
+                { field: "stcd", title: "站码", headerName: '站码', width: 20 },
+                { field: "events.length", title: "洪水场次", headerName: '洪水场次', width: 20 },
+            ];
+            data = tableData.value;
+            break;
+
+        case 2:
+            fileName = '测报数据详情';
+            headers = siteColumnDefs.value.map(item => ({...item, width: 25}));
+            data = siteViewData.value;
+            break;
+    
+        default:
+            break;
     }
-  }).catch(err => {
-    toast.add({ severity: 'error', summary: '导出失败，请重试', detail: '', group: 'tc', life: 3000 });
-    console.log(err);
-  })
+    const config = {
+        headers: headers,
+        data: data,
+        headerDeep:1,
+        fileName: fileName
+    };
+
+    // http://60.174.203.118:5233/export // 公司
+    // http://10.34.1.25:5233/export // 省局
+    axios.post('http://10.34.1.25:5233/export', config).then(res => {
+        if (res.data.code === 0) {
+        const a = document.createElement('a')
+        a.href = res.data.data;
+        a.click();
+        } else {
+        toast.add({ severity: 'error', summary: '导出失败，请重试', detail: '', group: 'tc', life: 3000 });
+        }
+    }).catch(err => {
+        toast.add({ severity: 'error', summary: '导出失败，请重试', detail: '', group: 'tc', life: 3000 });
+        console.log(err);
+    })
 }
 
 // 初始化

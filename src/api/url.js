@@ -42,9 +42,12 @@ export function getTotalW(data) {
 
 // 尹权哲 
 // 站点以测补报
+// const prefix = '/data';
+const prefix = '/water-flood/data';
+
 export function listHss(data) {
   return http({
-    url: '/water-flood/data/listHss',
+    url: prefix + '/listHss',
     method: 'post',
     data
   });
@@ -52,7 +55,7 @@ export function listHss(data) {
 
 export function getCcByStcd(data) {
   return http({
-    url: '/water-flood/data/getCcByStcd',
+    url: prefix + '/getCcByStcd',
     method: 'post',
     data
   });
@@ -61,7 +64,7 @@ export function getCcByStcd(data) {
 
 export function getgcx(data) {
   return http({
-    url: '/water-flood/data/getgcx',
+    url: prefix + '/getgcx',
     method: 'post',
     data
   });
