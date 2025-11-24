@@ -1,5 +1,11 @@
-# Vue 3 + Vite
+# sxx-table
 
-This template should help get you started developing with Vue 3 in Vite. The template uses Vue 3 `<script setup>` SFCs, check out the [script setup docs](https://v3.vuejs.org/api/sfc-script-setup.html#sfc-script-setup) to learn more.
+## sb-report 分支
+### 设备信息填报
 
-Learn more about IDE Support for Vue in the [Vue Docs Scaling up Guide](https://vuejs.org/guide/scaling-up/tooling.html#ide-support).
+## syncWeatherRainRecord 分支
+### tbqxyl 同步气象雨量数据记录
+### zdsltj 站点数量统计
+### khzdlxsl 库湖最大拦蓄水量
+### zdycbb 站点以测补报
+### zrzxs 逐日总蓄水
