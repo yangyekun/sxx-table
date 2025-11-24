@@ -1,4 +1,4 @@
-## *** sxx-table ***
+*** sxx-table ***
 
 *** sb-report 分支 ***
 ### 设备信息填报
