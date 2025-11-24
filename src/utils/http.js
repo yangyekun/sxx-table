@@ -1,5 +1,3 @@
-import axios from 'axios';
-
 const http = axios.create({
   // baseURL: 'http://192.168.5.39:8080',
   baseURL: 'http://10.34.1.25:8010',
@@ -9,9 +7,6 @@ const http = axios.create({
 const duration = 3500;
 
 http.interceptors.request.use(config => {
-  // if (!config.noToken) {
-  //   config.headers.token = sessionStorage.getItem('token');
-  // }
   return config;
 }, error => {
   console.log(error);

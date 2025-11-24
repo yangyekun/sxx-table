@@ -134,8 +134,6 @@
 </template>
 
 <script setup>
-import dayjs from 'dayjs';
-import axios from 'axios';
 import { ref, onMounted, watch } from 'vue';
 import { listHss, getCcByStcd, getgcx } from '@/api/url.js';
 import { hourArr } from "@/utils/index.js";
@@ -144,7 +142,6 @@ import { getInterval1 } from '@/utils/chartUtil.js'
 import Dialog from 'primevue/dialog';
 import Checkbox from 'primevue/checkbox';
 import { useToast } from 'primevue/usetoast';
-import * as echarts from 'echarts';
 import { AgGridVue } from "ag-grid-vue3";
 import textActions from "@/components/textActions.vue";
 
@@ -436,7 +433,7 @@ const setOption = (data, events_data) => {
         xAxis: [
             {
                 type: "time",
-                onZero: false,
+                onZero: false, 
                 axisLine: {
                     lineStyle: {
                         color: "#000",
@@ -462,17 +459,17 @@ const setOption = (data, events_data) => {
                         );
                     },
                     rich: {
-                    month: {
-                        color: "#000",
-                        fontWeight: "bold",
-                    },
-                    day: {
-                        color: "#078525",
-                        fontWeight: "bold",
-                    },
-                    year: {
-                        color: "#999",
-                    },
+                        month: {
+                            color: "#000",
+                            fontWeight: "bold",
+                        },
+                        day: {
+                            color: "#078525",
+                            fontWeight: "bold",
+                        },
+                        year: {
+                            color: "#999",
+                        },
                     },
                 },
             }

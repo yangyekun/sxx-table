@@ -52,8 +52,6 @@
 </template>
 
 <script setup>
-import dayjs from "dayjs";
-import axios from 'axios';
 import { ref, onMounted } from 'vue';
 import { hourArr } from "@/utils/index.js";
 import { useToast } from 'primevue/usetoast';
