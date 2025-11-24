@@ -44,7 +44,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
 import { AgGridVue } from "ag-grid-vue3";
 import { hourArr } from "@/utils/index.js";
 import { useToast } from 'primevue/usetoast';

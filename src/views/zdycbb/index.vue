@@ -134,7 +134,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted, watch } from 'vue';
 import { listHss, getCcByStcd, getgcx } from '@/api/url.js';
 import { hourArr } from "@/utils/index.js";
 import { getInterval1 } from '@/utils/chartUtil.js'
