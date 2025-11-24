@@ -782,6 +782,17 @@ const setOption = (data, events_data) => {
                 symbolSize: 15,
                 hoverAnimation: false,
                 data: yctms,
+                label: {
+                    normal: {
+                        show: false,
+                        position: "top",
+                        color: "#1afa29",
+                        formatter: function (params) {
+                            let date = dayjs(params.value[0]).format("MM-DD") || '';
+                            return date;
+                        }
+                    },
+                },
                 lineStyle: {
                     normal: {
                         color: "#1afa29",
@@ -805,6 +816,37 @@ const setOption = (data, events_data) => {
         areas: areas
     });
     myChart && myChart.resize();
+
+    myChart.on('dataZoom', function (params) {
+        // 获取当前的 dataZoom 状态
+        var opt = myChart.getOption();
+        var start = opt.dataZoom[0].start;
+        var end = opt.dataZoom[0].end;
+        
+        // 计算当前展示的百分比跨度
+        var span = end - start;
+
+        // 阈值逻辑：
+        // 如果跨度大于 20% (代表当前看的数据很多，即缩小状态)，则不显示标签
+        // 如果跨度小于 20% (代表当前看的数据很少，即放大状态)，则显示标签
+        var shouldShowLabel = span < 40;
+
+        // 只有当状态改变时才 setOption，避免性能浪费
+        // 这里假设您的散点图是 series 中的第 1 个 (索引 0)
+        if (opt.series[opt.series.length - 1].label.show !== shouldShowLabel) {
+            myChart.setOption({
+                series: [{
+                    // 必须指定 name 或 index 才能覆盖特定 series
+                    name: '应测', 
+                    label: {
+                        normal: {
+                            show: shouldShowLabel
+                        }
+                    }
+                }]
+            });
+        }
+    });
 
     // myChart.on('brushselected', function (params) {
     //     const selectedInfo = params.batch[0];
