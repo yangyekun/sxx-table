@@ -4,6 +4,10 @@
 
 <script setup>
 
+defineOptions({
+  name: 'index'
+})
+
 </script>
 
 <style>
