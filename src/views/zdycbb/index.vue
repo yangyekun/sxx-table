@@ -222,7 +222,7 @@ onMounted(() => {
         },
         { field: "stcd", title: "站码", headerName: '站码' },
         { field: "yc", title: "应测", headerName: '应测' },
-        { field: "events.length", title: "洪水场次", headerName: '洪水场次' },
+        // { field: "events.length", title: "洪水场次", headerName: '洪水场次' },
         { field: "sc", title: "实测", headerName: '实测' },
         {
             field: "", 
@@ -1040,7 +1040,7 @@ const handleExport = (tag) => {
                 { field: "stnm", title: "站名", headerName: '站名', width: 20 },
                 { field: "stcd", title: "站码", headerName: '站码', width: 20 },
                 { field: "yc", title: "应测", headerName: '应测', width: 20 },
-                { field: "events.length", title: "洪水场次", headerName: '洪水场次', width: 20 },
+                // { field: "events.length", title: "洪水场次", headerName: '洪水场次', width: 20 },
                 { field: "sc", title: "实测", headerName: '实测', width: 20 },
             ];
             data = tableData.value;
