@@ -23,8 +23,8 @@
                 <span m-x-5px>-</span>
                 <DatePicker v-model="etm" dateFormat="yy-mm-dd" w-110px />
                 <!-- <Select v-model="eHour" :options="hourArr" optionLabel="label" optionValue="value" w-70px m-x-5px /> -->
-                <!-- <span ml-15px>测站选择：</span>
-                <Select v-model="stcd" :options="siteArr" optionLabel="stnm" optionValue="stcd" w-120px /> -->
+                <span ml-15px>测站选择：</span>
+                <Select v-model="stcd" :options="siteArr" optionLabel="STNM" optionValue="STCD" w-120px />
 
                 <Button label="查询" size="small" @click="getList" :disabled="isLoading" ml-10px style="padding: 5px 25px;" />
                 <Button label="潮位摘录数据" size="small" severity="success" v-if="tabledata.length" @click="handleShowTable" ml-10px style="padding: 5px 25px;"  />
@@ -94,18 +94,21 @@ onMounted(() => {
     stm.value = dayjs().add(-2, "d").format("YYYY-MM-DD");
     etm.value = dayjs().format("YYYY-MM-DD");
 
+    init();
     initChart();
-    getList();
 
     columnDefs.value = [
         { field: "index", title: "序号", headerName: "序号", width: 50, },
-        { field: "maxPoint_waterLevel", title: "最高潮位", headerName: '最高潮位', width: 80 },
+        { field: "maxPoint_waterLevel", title: "日高高潮", headerName: '日高高潮', width: 80 },
         { field: "maxPoint_time", title: "时间", headerName: '时间', width: 120 },
-        { field: "minPoint_waterLevel", title: "最低潮位", headerName: '最低潮位', width: 80 },
-        { field: "minPoint_time", title: "时间", headerName: '时间', width: 120 },
-        { field: "secondMaxPoint_waterLevel", title: "次高潮位", headerName: '次高潮位', width: 80 },
+
+        { field: "secondMaxPoint_waterLevel", title: "日低高潮", headerName: '日低高潮', width: 80 },
         { field: "secondMaxPoint_time", title: "时间", headerName: '时间', width: 120 },
-        { field: "secondMinPoint_waterLevel", title: "次低潮位", headerName: '次低潮位', width: 80 },
+
+        { field: "minPoint_waterLevel", title: "日高低潮", headerName: '日高低潮', width: 80 },
+        { field: "minPoint_time", title: "时间", headerName: '时间', width: 120 },
+
+        { field: "secondMinPoint_waterLevel", title: "日低低潮", headerName: '日低低潮', width: 80 },
         { field: "secondMinPoint_time", title: "时间", headerName: '时间', width: 120 },
     ]
 })
@@ -167,6 +170,14 @@ const setOption = (data1, data2) => {
         legend: {
             show: false
         },
+        dataZoom: [
+            {
+                type: 'inside',  // 重点：设置为 inside，开启鼠标滚轮缩放
+                xAxisIndex: 0,   // 控制第一个 x 轴
+                start: 0,        // 默认数据窗口范围 0%
+                end: 100         // 默认数据窗口范围 100%
+            }
+        ],
         grid: {
             y: 30,
             y2: 15,
@@ -344,11 +355,23 @@ const setOption = (data1, data2) => {
     myChart && myChart.hideLoading();
 }
 
+const init = () => {
+    axios.get("http://10.34.1.25/ahsxx/service/BusinessHandler.ashx?name=SelectStcdStnm&moduleid=13459").then(res => {
+        siteArr.value = res.data["潮位站"];
+
+        stcd.value = siteArr.value[0].STCD;
+        getList();
+    }).catch(err => {
+        toast.add({ severity: 'error', summary: '请求失败，请重试', detail: '', group: 'tc', life: 3000 });
+        console.log(err);
+    })
+}
+
 const getList = () => {
     isLoading.value = true;
     myChart && myChart.showLoading();
     let params = {
-        stcd: "60115800",
+        stcd: stcd.value,
         stime: dayjs(stm.value).format("YYYY-MM-DD ") + `00:00`,
         etime: dayjs(etm.value).format("YYYY-MM-DD ") + `00:00`,
     }
