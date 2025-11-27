@@ -138,15 +138,8 @@ const setOption = (data1, data2) => {
                         let date = new Date(value);
 
                         return (
-                            "{month|" +
-                            (date.getMonth() + 1) +
-                            "月}" +
-                            "{day|" +
-                            date.getDate() +
-                            "日}\n" +
-                            "{year|" +
-                            date.getFullYear() +
-                            "}年"
+                            "{hour|" + date.getHours() +"时}" +
+                            "{minute|" + date.getMinutes() + "分}"
                         );
                     },
                     rich: {
