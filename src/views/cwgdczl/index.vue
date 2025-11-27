@@ -27,7 +27,7 @@
                 <Select v-model="stcd" :options="siteArr" optionLabel="STNM" optionValue="STCD" w-120px />
 
                 <Button label="查询" size="small" @click="getList" :disabled="isLoading" ml-10px style="padding: 5px 25px;" />
-                <Button label="潮位摘录数据" size="small" severity="success" v-if="tabledata.length" @click="handleShowTable" ml-10px style="padding: 5px 25px;"  />
+                <Button label="已摘录数据" size="small" severity="success" v-if="tabledata.length" @click="handleShowTable" ml-10px style="padding: 5px 25px;"  />
             </div>
         </div>
 
@@ -375,6 +375,12 @@ const getList = () => {
         stime: dayjs(stm.value).format("YYYY-MM-DD ") + `00:00`,
         etime: dayjs(etm.value).format("YYYY-MM-DD ") + `00:00`,
     }
+    if((params.stime == params.etime) || (params.stime > params.etime)){
+        toast.add({ severity: 'warn', summary: '请选择正确时间范围', detail: '', group: 'tc', life: 3000 });
+        isLoading.value = false;
+        myChart && myChart.hideLoading();
+        return;
+    }
 
     getGdz(params).then(res => {
         isLoading.value = false
@@ -415,7 +421,7 @@ const exportData = () => {
         headers: headers,
         data: tabledata.value,
         headerDeep:1,
-        fileName: "摘录数据"
+        fileName: "已摘录数据"
     };
 
     // http://60.174.203.118:5233/export // 公司
