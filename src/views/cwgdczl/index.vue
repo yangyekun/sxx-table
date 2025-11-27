@@ -144,7 +144,6 @@ const setOption = (data1, data2) => {
             { value: [item.secondMinPoint.time?formatTime(item.secondMinPoint.time):"", item.secondMinPoint.waterLevel] },
         );
     });
-
     let diffz = maxz - minz;
     let intervalData = getInterval1({ min: minz, max: maxz, diff: diffz });
 
@@ -352,7 +351,6 @@ const setOption = (data1, data2) => {
 
     myChart && myChart.setOption(option, true);
     myChart && myChart.resize();
-    myChart && myChart.hideLoading();
 }
 
 const init = () => {
@@ -368,6 +366,7 @@ const init = () => {
 }
 
 const getList = () => {
+    tabledata.value = [];
     isLoading.value = true;
     myChart && myChart.showLoading();
     let params = {
@@ -383,7 +382,8 @@ const getList = () => {
     }
 
     getGdz(params).then(res => {
-        isLoading.value = false
+        isLoading.value = false;
+        myChart && myChart.hideLoading();
         if (res.code === 0) {
             const {gcx, dailyExtremes} = res.data;
             tabledata.value = dailyExtremes.map((item, index) => {
@@ -400,9 +400,14 @@ const getList = () => {
                 }
             });
             setOption(gcx, dailyExtremes);
+        } else {
+            myChart && myChart.hideLoading();
+            setOption([], []);
         }
     }).catch(err => {
         toast.add({ severity: 'error', summary: '请求失败，请重试', detail: '', group: 'tc', life: 3000 });
+        isLoading.value = false;
+        myChart && myChart.hideLoading();
         console.log(err);
     })
 }
