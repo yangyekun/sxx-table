@@ -42,7 +42,7 @@
                     <p absolute top-22px right-60px><i title="导出" class="pi pi-download" cursor-pointer style="font-size: 15px;" @click="exportData"></i></p>
                 </div>
             </template>
-            <div w-1080px h-440px class="page-main" p-0px>
+            <div w-640px h-360px class="page-main" p-0px>
                 <ag-grid-vue
                     class="ag-theme-alpine"
                     style="flex: 1;"
@@ -79,7 +79,11 @@ const isLoading = ref(false)
 const visible = ref(false)
 const headerTitle = ref('摘录数据')
 const tabledata = ref([])
-const columnDefs = ref([])
+const columnDefs = ref([
+    { field: "index", title: "序号", headerName: "序号" },
+    { field: "time", title: "时间", headerName: '时间' },
+    { field: "z", title: "潮位", headerName: '潮位' },
+])
 
 let gridApi, myChart;
 const defColOption = {
@@ -97,20 +101,17 @@ onMounted(() => {
     init();
     initChart();
 
-    columnDefs.value = [
-        { field: "index", title: "序号", headerName: "序号", width: 50, },
-        { field: "maxPoint_waterLevel", title: "日高高潮", headerName: '日高高潮', width: 80 },
-        { field: "maxPoint_time", title: "时间", headerName: '时间', width: 120 },
-
-        { field: "secondMaxPoint_waterLevel", title: "日低高潮", headerName: '日低高潮', width: 80 },
-        { field: "secondMaxPoint_time", title: "时间", headerName: '时间', width: 120 },
-
-        { field: "minPoint_waterLevel", title: "日高低潮", headerName: '日高低潮', width: 80 },
-        { field: "minPoint_time", title: "时间", headerName: '时间', width: 120 },
-
-        { field: "secondMinPoint_waterLevel", title: "日低低潮", headerName: '日低低潮', width: 80 },
-        { field: "secondMinPoint_time", title: "时间", headerName: '时间', width: 120 },
-    ]
+    // columnDefs.value = [
+    //     { field: "index", title: "序号", headerName: "序号" },
+    //     { field: "maxPoint_waterLevel", title: "日高高潮", headerName: '日高高潮', width: 80 },
+    //     { field: "maxPoint_time", title: "时间", headerName: '时间', width: 120 },
+    //     { field: "secondMaxPoint_waterLevel", title: "日低高潮", headerName: '日低高潮', width: 80 },
+    //     { field: "secondMaxPoint_time", title: "时间", headerName: '时间', width: 120 },
+    //     { field: "minPoint_waterLevel", title: "日高低潮", headerName: '日高低潮', width: 80 },
+    //     { field: "minPoint_time", title: "时间", headerName: '时间', width: 120 },
+    //     { field: "secondMinPoint_waterLevel", title: "日低低潮", headerName: '日低低潮', width: 80 },
+    //     { field: "secondMinPoint_time", title: "时间", headerName: '时间', width: 120 },
+    // ];
 })
 
 // 初始化图表
@@ -137,12 +138,7 @@ const setOption = (data1, data2) => {
         maxz = Math.max(maxz, item.z);
     });
     data2 && data2.forEach(item => {
-        zldata.push(
-            { value: [item.maxPoint.time?formatTime(item.maxPoint.time):"", item.maxPoint.waterLevel] },
-            { value: [item.minPoint.time?formatTime(item.minPoint.time):"", item.minPoint.waterLevel] },
-            { value: [item.secondMaxPoint.time?formatTime(item.secondMaxPoint.time):"", item.secondMaxPoint.waterLevel] },
-            { value: [item.secondMinPoint.time?formatTime(item.secondMinPoint.time):"", item.secondMinPoint.waterLevel] },
-        );
+        zldata.push({value: [item.point.tm, item.point.z]})
     });
     let diffz = maxz - minz;
     let intervalData = getInterval1({ min: minz, max: maxz, diff: diffz });
@@ -385,21 +381,21 @@ const getList = () => {
         isLoading.value = false;
         myChart && myChart.hideLoading();
         if (res.code === 0) {
-            const {gcx, dailyExtremes} = res.data;
-            tabledata.value = dailyExtremes.map((item, index) => {
+            const {listBxsw, bands} = res.data;
+            tabledata.value = bands.map((item, index) => {
                 return {
                     index: index + 1,
-                    maxPoint_time: item.maxPoint.time?formatTime(item.maxPoint.time):'',
-                    maxPoint_waterLevel: item.maxPoint.waterLevel,
-                    minPoint_time: item.minPoint.time?formatTime(item.minPoint.time):'',
-                    minPoint_waterLevel: item.minPoint.waterLevel,
-                    secondMaxPoint_time: item.secondMaxPoint.time?formatTime(item.secondMaxPoint.time):'',
-                    secondMaxPoint_waterLevel: item.secondMaxPoint.waterLevel,
-                    secondMinPoint_time: item.secondMinPoint.time?formatTime(item.secondMinPoint.time):'',
-                    secondMinPoint_waterLevel: item.secondMinPoint.waterLevel,
+                    time: item.point.tm,
+                    z: item.point.z,
+                    // minPoint_time: item.minPoint.tm?formatTime(item.minPoint.tm):'',
+                    // minPoint_waterLevel: item.minPoint.waterLevel,
+                    // secondMaxPoint_time: item.secondMaxPoint.tm?formatTime(item.secondMaxPoint.tm):'',
+                    // secondMaxPoint_waterLevel: item.secondMaxPoint.waterLevel,
+                    // secondMinPoint_time: item.secondMinPoint.tm?formatTime(item.secondMinPoint.tm):'',
+                    // secondMinPoint_waterLevel: item.secondMinPoint.waterLevel,
                 }
             });
-            setOption(gcx, dailyExtremes);
+            setOption(listBxsw, bands);
         } else {
             myChart && myChart.hideLoading();
             setOption([], []);

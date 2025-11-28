@@ -73,7 +73,8 @@ export function getgcx(data) {
 // 逐潮高低潮摘录
 export function getGdz(data) {
   return http({
-    url: prefix + '/getGdz',
+    url: prefix + '/getGdzs',
+    // url: prefix + '/getGdz',
     method: 'post',
     data
   });
