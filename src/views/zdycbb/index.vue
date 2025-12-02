@@ -189,8 +189,8 @@ let siteViewData = ref([])
 let siteColumnDefs = ref([
     { field: "stnm", title: "站名", headerName: '站名', align: 'center', width: 90 },
     { field: "stcd", title: "站码", headerName: '站码', align: 'center', width: 90 },
-    { field: "pc", title: "计划测次", headerName: '计划测次', align: 'center', width: 90 },
-    { field: "sc", title: "实际测次", headerName: '实际测次', align: 'center', width: 90 },
+    { field: "pc", title: "应测", headerName: '应测', align: 'center', width: 90 },
+    { field: "sc", title: "实测", headerName: '实测', align: 'center', width: 90 },
     { field: "tm", title: "测流时间", headerName: '测流时间', align: 'center', width: 150 },
     { field: "gz", title: "规则", headerName: '规则', align: 'center', width: 300 },
 ])
@@ -202,14 +202,15 @@ onMounted(() => {
     sHour_chart.value = eHour_chart.value = sHour.value = eHour.value = dayjs().format("HH");
 
     columnDefs.value = [
-        {
-            field: "index",
-            headerName: "#",
-            suppressSizeToFit: true,
-            valueFormatter: params => {
-                return params.node.rowIndex + 1;
-            }
-        },
+        // {
+        //     field: "index",
+        //     headerName: "#",
+        //     suppressSizeToFit: true,
+        //     valueFormatter: params => {
+        //         return params.node.rowIndex + 1;
+        //     }
+        // },
+        { field: "index", title: "序号", headerName: '序号' },
         {
             field: "", 
             title: "站名", 
@@ -922,7 +923,7 @@ const getList = async (isChart) => {
             let cc = syc.split(",") || [];
 
             tableData.value = [
-                { ...res3.data, stnm: "王家坝", stcd: "50101100", sc: cc[0] || 0, yc: cc[1] || 0 }
+                { ...res3.data, index: 1, stnm: "王家坝", stcd: "50101100", sc: cc[0] || 0, yc: cc[1] || 0 }
             ];
             siteViewData.value = datePcVos || [];
 
@@ -1037,7 +1038,8 @@ const handleExport = (tag) => {
         case 1:
             fileName = '站点以测补报数据';
             headers = [
-                { field: "stnm", title: "站名", headerName: '站名', width: 20 },
+                { field: "index", title: "站名", headerName: '序号', width: 20 },
+                { field: "stnm", title: "序号", headerName: '站名', width: 20 },
                 { field: "stcd", title: "站码", headerName: '站码', width: 20 },
                 { field: "yc", title: "应测", headerName: '应测', width: 20 },
                 // { field: "events.length", title: "洪水场次", headerName: '洪水场次', width: 20 },
