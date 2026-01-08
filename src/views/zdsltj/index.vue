@@ -9,10 +9,13 @@
       </template>
     </Toast>
     <div class="page-main" bg-white>
-      <div flex-y-center mb-10px>
+      <div flex-between mb-10px>
         <div class="point-title">
           <span class="point"></span>
           <span class="point-label">站点数量统计</span>
+        </div>
+        <div>
+          <span>{{ date }}</span>
         </div>
       </div>
       <ag-grid-vue
@@ -43,6 +46,7 @@ const toast = useToast()
 const tableData = ref([])
 const columnDefs = ref([])
 const isLoading = ref(false)
+const date = ref()
 
 let gridApi;
 const defColOption = {
@@ -73,6 +77,7 @@ onMounted(() => {
 const getList = () => {
   tableData.value = [];
   isLoading.value = true;
+  date.value = dayjs().format('YYYY年MM月DD日HH时mm分')
 
   getStationCount().then(res => {
     isLoading.value = false;
