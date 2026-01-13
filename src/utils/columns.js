@@ -8,11 +8,16 @@ export const columns_pinned = [
         field: "cjxx",
         headerName: '基础信息',
         children: [
-          {  field: "ssfzx", pinned: 'left',  headerName: '所属水旱情分中心名称', width: 130 },
-          { field: "sszd", pinned: 'left', headerName: '所属站队', width: 140 },
           { field: "ycmc", pinned: 'left', headerName: '遥测站名称', width: 250, colSpan: (params) => params.data.index == '注'? 2 : 1 },
           { field: "sscz", pinned: 'left', headerName: '所属测站编码', width: 240 },
-          { field: "ycxm", pinned: 'left', headerName: '遥测项目', width: 120 }
+          { field: "ycxm", pinned: 'left', headerName: '遥测项目', width: 120 },
+          { field: "ssfzx",  headerName: '所属水旱情分中心名称', width: 130 },
+          { field: "sszd", headerName: '所属站队', width: 140 },
+          { field: "shi", headerName: '所在市', width: 100 },
+          { field: "xian", headerName: '所在县(市、区)', width: 120 },
+          { field: "shfzx", headerName: '是否在山洪灾害防治县', width: 130 },
+          { field: "shxly", headerName: '是否在山洪灾害小流域防治单元', width: 150 },
+          { field: "shxlym", headerName: '山洪灾害小流域编码', width: 130 },
         ]
       },
       {
@@ -249,15 +254,20 @@ export const columns = [
         field: "cjxx",
         headerName: '基础信息',
         children: [
+          { field: "ycmc", headerName: '遥测站名称', width: 180, colSpan: (params) => params.data.index == '注'? 2 : 1 },
+          { field: "sscz", headerName: '所属测站编码', width: 140 },
+          { field: "ycxm", headerName: '遥测项目', width: 120 },
           { 
             field: "ssfzx",  
             headerName: '所属水旱情分中心名称', 
-            width: 130
+            width: 150
           },
-          { field: "sszd", headerName: '所属站队', width: 140 },
-          { field: "ycmc", headerName: '遥测站名称', width: 250, colSpan: (params) => params.data.index == '注'? 2 : 1 },
-          { field: "sscz", headerName: '所属测站编码', width: 240 },
-          { field: "ycxm", headerName: '遥测项目', width: 120 }
+          { field: "sszd", headerName: '所属站队', width: 130 },
+          { field: "shi", headerName: '所在市', width: 100 },
+          { field: "xian", headerName: '所在县(市、区)', width: 150 },
+          { field: "shfzx", headerName: '是否在山洪灾害防治县', width: 200 },
+          { field: "shxly", headerName: '是否在山洪灾害小流域防治单元', width: 245 },
+          { field: "shxlym", headerName: '山洪灾害小流域编码', width: 180 },
         ]
       },
       {

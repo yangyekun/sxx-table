@@ -90,7 +90,44 @@
               <InputText v-model="addForm.ycxm" type="text" placeholder="" />
             </div>
           </div>
-          <div class="dialogForm-item"></div>
+          <div class="dialogForm-item">
+            <span class="dialogForm-item-title">所在市:</span>
+            <div class="dialogForm-item-main">
+              <InputText v-model="addForm.shi" type="text" placeholder="" />
+            </div>
+          </div>
+        </div>
+        <div class="dialogForm-row">
+          <div class="dialogForm-item">
+            <span class="dialogForm-item-title">
+              所在县(市、区):
+            </span>
+            <div class="dialogForm-item-main">
+              <InputText v-model="addForm.xian" type="text" placeholder="" />
+            </div>
+          </div>
+          <div class="dialogForm-item">
+            <span class="dialogForm-item-title">是否在山洪灾害防治县:</span>
+            <div class="dialogForm-item-main">
+              <InputText v-model="addForm.shfzx" type="text" placeholder="" />
+            </div>
+          </div>
+        </div>
+        <div class="dialogForm-row">
+          <div class="dialogForm-item">
+            <span class="dialogForm-item-title">
+              是否在山洪灾害小流域防治单元:
+            </span>
+            <div class="dialogForm-item-main">
+              <InputText v-model="addForm.shxly" type="text" placeholder="" />
+            </div>
+          </div>
+          <div class="dialogForm-item">
+            <span class="dialogForm-item-title">山洪灾害小流域编码:</span>
+            <div class="dialogForm-item-main">
+              <InputText v-model="addForm.shxlym" type="text" placeholder="" />
+            </div>
+          </div>
         </div>
         <p class="title t2">辅助信息</p>
         <div class="dialogForm-row">
@@ -833,7 +870,7 @@ const addForm = ref({
   // id: null,
   ssfzx: "",
   sszd: "",
-  ycmc: "",
+  ycmc: "",shi: "",xian: "",shfzx: "",shxly: "",shxlym: "",
   sscz: "",ycxm: "",zcxx: "",zdxx: "",fzxx: "",ylsccj: "",ylxh: "",yllx: "",ylwc: "",yltm: "",swonecj: "",swonexh: "",swonelx: "",swonetm: "",
   swtwocj: "", swtwoxh: "",
   swtwolx: "", swtwotm: "",
@@ -942,7 +979,7 @@ const addModel = () => {
   addForm.value = {
     ssfzx: "",
     sszd: "",
-    ycmc: "",
+    ycmc: "",shi: "",xian: "",shfzx: "",shxly: "",shxlym: "",
     sscz: "",ycxm: "",zcxx: "",zdxx: "",fzxx: "",ylsccj: "",ylxh: "",yllx: "",ylwc: "",yltm: "",swonecj: "",swonexh: "",swonelx: "",swonetm: "",
     swtwocj: "", swtwoxh: "",
     swtwolx: "", swtwotm: "",
@@ -1048,7 +1085,7 @@ const getList = async () => {
   tableData.value = [];
   pinnedTopRowData.value = [
     {
-      ssfzx: "必填", sszd: "必填", ycmc: "必填", sscz: "必填",ycxm: "必填",zcxx: "必填",zdxx: "必填",fzxx: "必填",ylsccj: "必填",ylxh: "必填",
+      ssfzx: "必填", sszd: "必填", shi: "必填", xian: "必填", shfzx: "必填", shxly: "必填", shxlym: "必填", ycmc: "必填", sscz: "必填",ycxm: "必填",zcxx: "必填",zdxx: "必填",fzxx: "必填",ylsccj: "必填",ylxh: "必填",
       yllx: "",ylwc: "必填",yltm: "必填",swonecj: "必填",swonexh: "必填",swonelx: "",swonetm: "必填",swtwocj: "必填", swtwoxh: "必填",
       swtwolx: "", swtwotm: "必填", zgsw: "必填", zgfxjc: "必填",
       zdsw: "必填", zdfxjc: "必填", sqcj: "必填", sqxh: "必填", sqlx: "", sqtm: "必填", 
