@@ -127,7 +127,7 @@ const initChart = () => {
 }
 
 const setOption = (data1, data2) => {
-    let zdata = [], zldata = [];
+    let zdata = [], zldata_LOW = [], zldata_HIGH = [];
     let minz = Infinity, maxz = -Infinity;
 
     data1 && data1.forEach(item => {
@@ -137,8 +137,14 @@ const setOption = (data1, data2) => {
         minz = Math.min(minz, item.z);
         maxz = Math.max(maxz, item.z);
     });
+    
     data2 && data2.forEach(item => {
-        zldata.push({value: [item.point.tm, item.point.z]})
+        if(item.type === 'LOW') {
+            zldata_LOW.push({value: [item.point.tm, item.point.z]});
+        } else if(item.type === 'HIGH') {
+            zldata_HIGH.push({value: [item.point.tm, item.point.z]});
+        }
+        // zldata.push({value: [item.point.tm, item.point.z]});
     });
     let diffz = maxz - minz;
     let intervalData = getInterval1({ min: minz, max: maxz, diff: diffz });
@@ -311,14 +317,14 @@ const setOption = (data1, data2) => {
                 name: "摘录后数据",
                 type: "scatter",
                 yAxisIndex: 0,
-                data: zldata,
+                data: zldata_LOW,
                 connectNulls: true,
                 showSymbol: false,
                 symbol: "circle",
                 symbolSize: 13,
                 hoverAnimation: false,
                 itemStyle: {
-                    color: '#rgb(206,93,90)'
+                    color: '#FF7F50'
                 },
                 label: {
                     normal: {
@@ -326,21 +332,55 @@ const setOption = (data1, data2) => {
                         position: "top",
                     },
                 },
-                markPoint: {
-                    silent: true,
-                    label: {
-                        normal: {
-                            show: true,
-                            textStyle: {
-                                color: "white",
-                            },
-                        },
-                    },
-                    data: [
-                        { type: "max", name: "最大值" },
-                        { type: "min", name: "最小值" },
-                    ],
+                // markPoint: {
+                //     silent: true,
+                //     label: {
+                //         normal: {
+                //             show: true,
+                //             textStyle: {
+                //                 color: "white",
+                //             },
+                //         },
+                //     },
+                //     data: [
+                //         { type: "max", name: "最大值" },
+                //         { type: "min", name: "最小值" },
+                //     ],
+                // },
+            },{
+                name: "摘录后数据",
+                type: "scatter",
+                yAxisIndex: 0,
+                data: zldata_HIGH,
+                connectNulls: true,
+                showSymbol: false,
+                symbol: "circle",
+                symbolSize: 13,
+                hoverAnimation: false,
+                itemStyle: {
+                    color: '#00FFFF'
                 },
+                label: {
+                    normal: {
+                        show: true,
+                        position: "top",
+                    },
+                },
+                // markPoint: {
+                //     silent: true,
+                //     label: {
+                //         normal: {
+                //             show: true,
+                //             textStyle: {
+                //                 color: "white",
+                //             },
+                //         },
+                //     },
+                //     data: [
+                //         { type: "max", name: "最大值" },
+                //         { type: "min", name: "最小值" },
+                //     ],
+                // },
             }
         ]
     }
