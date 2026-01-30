@@ -23,6 +23,9 @@ importers:
       ag-grid-vue3:
         specifier: ^33.1.1
         version: 33.2.1(vue@3.5.13)
+      js-pinyin:
+        specifier: ^0.2.7
+        version: 0.2.7
       primeicons:
         specifier: ^7.0.0
         version: 7.0.0
@@ -788,6 +791,9 @@ packages:
   jiti@2.6.1:
     resolution: {integrity: sha512-ekilCSN1jwRvIbgeg/57YFh8qQDNbwDb9xT/qu2DAHbFFZUicIl4ygVaAvzveMhMVr3LnpSKTNnwt8PoOfmKhQ==}
     hasBin: true
+
+  js-pinyin@0.2.7:
+    resolution: {integrity: sha512-Dbm7qJDwlC2MRHRXQo7GrVrL5w975tEOX6sfc0M8Z3oL9VhR4uUqgkwaETMqh4bAJ14w4zVs3tXsi9pDxWUmNg==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha1-GSA/tZmR35jjoocFDUZHzerzJJk=}
@@ -1784,6 +1790,8 @@ snapshots:
   is-number@7.0.0: {}
 
   jiti@2.6.1: {}
+
+  js-pinyin@0.2.7: {}
 
   js-tokens@4.0.0: {}
 

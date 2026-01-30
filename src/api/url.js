@@ -45,6 +45,30 @@ export function getTotalW(data) {
 // const prefix = '/data';
 const prefix = '/water-flood/data';
 
+export function getYcbb(data) {
+  return http({
+    url: prefix + '/v1/ycbb',
+    method: 'post',
+    data
+  });
+}
+
+export function getgcx(data) {
+  return http({
+    url: prefix + '/v1/getgcx',
+    method: 'post',
+    data
+  });
+}
+
+export function getCsdata(data) {
+  return http({
+    url: prefix + '/v1/getCsdata',
+    method: 'post',
+    data
+  });
+}
+
 export function listHss(data) {
   return http({
     url: prefix + '/listHss',
@@ -61,14 +85,6 @@ export function getCcByStcd(data) {
   });
 }
 
-
-export function getgcx(data) {
-  return http({
-    url: prefix + '/getgcx',
-    method: 'post',
-    data
-  });
-}
 
 // 逐潮高低潮摘录
 export function getGdz(data) {
