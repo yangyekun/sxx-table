@@ -327,9 +327,8 @@ const setOption = (data, events_data) => {
         });
         selected[item.name] = false;
     });
-
+    
     const result = filterByRanges(data, events) || [];
-   
     result.forEach(item => {
         series.push({
             name: "合成流量",
@@ -396,8 +395,8 @@ const setOption = (data, events_data) => {
                 selected: {
                     "水位": selectOption.value.includes("水位") ? true : false,
                     "报汛流量": selectOption.value.includes("报汛流量") ? true : false,
-                    "软在线流量": selectOption.value.includes("软在线流量") ? true : false,
-                    "硬在线流量": selectOption.value.includes("硬在线流量") ? true : false,
+                    "软在线": selectOption.value.includes("软在线") ? true : false,
+                    "硬在线": selectOption.value.includes("硬在线") ? true : false,
                     "实测流量": selectOption.value.includes("实测流量") ? true : false,
                     "合成流量": selectOption.value.includes("合成流量") ? true : false,
                     "应测": true,
@@ -701,7 +700,7 @@ const setOption = (data, events_data) => {
                         为了避免因为水位流量关系量程问题出现的这种平头现象  软在线 可以不用连线 直接显示点 因为点足够多，并不影响效果
                         */
                 name: "软在线",
-                type: "scatter",
+                type: "line",
                 yAxisIndex: 1,
                 data: data_q_rzx,
                 connectNulls: true,
@@ -916,7 +915,7 @@ const handleSiteClick = async (data) => {
         for(let key in res2.data) {
             if(data.stnm != key) {
                 legendKzz.value.push({
-                    name: key,
+                    name: `${key}水位`,
                     color: randomRgb(key),
                     data: res2.data[key],
                     pinyin: pinyin.getCamelChars(key)
@@ -1026,12 +1025,12 @@ watch(() => selectOption.value, (params) => {
     } else {
         selected["报汛流量"] = false;
     }
-    if(params.includes("软在线流量")) {
+    if(params.includes("软在线")) {
         selected["软在线"] = true;
     } else {
         selected["软在线"] = false;
     }
-    if(params.includes("硬在线流量")) {
+    if(params.includes("硬在线")) {
         selected["硬在线"] = true;
     } else {
         selected["硬在线"] = false;
