@@ -328,37 +328,37 @@ const setOption = (data, events_data) => {
         selected[item.name] = false;
     });
     
-    const result = filterByRanges(data, events) || [];
-    result.forEach(item => {
-        series.push({
-            name: "合成流量",
-            type: "line",
-            yAxisIndex: 1,
-            data: item,
-            connectNulls: true,
-            showSymbol: false,
-            symbolSize: 10,
-            hoverAnimation: false,
-            label: {
-                normal: {
-                    show: true,
-                    position: "top",
-                },
-            },
-            lineStyle: {
-                normal: {
-                    color: "#6fb94b",
-                    width: 2,
-                },
-            },
-            itemStyle: {
-                normal: {
-                    color: "#6fb94b",
-                    width: 3,
-                },
-            }
-        })
-    })
+    // const result = filterByRanges(data, events) || [];
+    // result.forEach(item => {
+    //     series.push({
+    //         name: "合成流量",
+    //         type: "line",
+    //         yAxisIndex: 1,
+    //         data: hcll,
+    //         connectNulls: true,
+    //         showSymbol: false,
+    //         symbolSize: 10,
+    //         hoverAnimation: false,
+    //         label: {
+    //             normal: {
+    //                 show: true,
+    //                 position: "top",
+    //             },
+    //         },
+    //         lineStyle: {
+    //             normal: {
+    //                 color: "#6fb94b",
+    //                 width: 2,
+    //             },
+    //         },
+    //         itemStyle: {
+    //             normal: {
+    //                 color: "#6fb94b",
+    //                 width: 3,
+    //             },
+    //         }
+    //     })
+    // })
     events && events.forEach(item => {
         areas.push({
             brushType: 'lineX',
@@ -792,6 +792,33 @@ const setOption = (data, events_data) => {
                         width: 10
                     },
                 },
+            },{
+                name: "合成流量",
+                type: "line",
+                yAxisIndex: 1,
+                data: hcll,
+                connectNulls: true,
+                showSymbol: false,
+                symbolSize: 10,
+                hoverAnimation: false,
+                label: {
+                    normal: {
+                        show: true,
+                        position: "top",
+                    },
+                },
+                lineStyle: {
+                    normal: {
+                        color: "#6fb94b",
+                        width: 2,
+                    },
+                },
+                itemStyle: {
+                    normal: {
+                        color: "#6fb94b",
+                        width: 3,
+                    },
+                }
             }
         ]
     }
