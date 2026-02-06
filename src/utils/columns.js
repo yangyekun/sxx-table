@@ -242,6 +242,7 @@ export const columns_pinned = [
     ]
   },
   { field: "check", headerName: '校核结果', width: 550,tooltipField: "check" },
+  { field: "remark", headerName: '备注', width: 200,tooltipField: "remark" }
 ];
 
 export const columns = [

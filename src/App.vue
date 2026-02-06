@@ -17,6 +17,17 @@
       </template>
     </Toast>
     <ConfirmPopup></ConfirmPopup>
+    <ConfirmPopup group="headless">
+       <template #message="slotProps">
+        <div style="padding: 10px 15px;">
+          <p>
+            <i class="pi pi-info-circle"></i>
+            {{ slotProps.message.message }}
+          </p>
+          <InputText v-model="remark" type="text" placeholder="" />
+        </div>
+      </template>
+    </ConfirmPopup>
     <div class="page-head">
       <div class="point-title">
         <span class="point"></span>
@@ -844,6 +855,7 @@ let gridApi_check;
 const tableData_check = ref([])
 const columns_check = ref([])
 const dialogVisible_check = ref(false)
+const remark = ref('');
 
 let gridApi;
 const defColOption = {
@@ -998,6 +1010,12 @@ const addModel = () => {
   dialogVisible.value = true;
 }
 
+const updateRemark = (data) => {
+  axios.post('http://10.34.1.25:8010/cj/shebei/updateRemark', {id: data.tailid, remark: data.remark}).then(res => {
+      
+  })
+}
+
 // 审核-批准
 const handleApprove = (data) => {
   axios.post("http://10.34.1.25:8010/cj/shebei/agreeSheBeiReview", data).then(res => {
@@ -1005,6 +1023,7 @@ const handleApprove = (data) => {
       toast.add({ severity:'success', summary: '批准成功', detail: '', group: 'cg', life: 3000 });
       toCheck();
 
+      updateRemark({id: data.tailid, remark: ''})
       // dialogVisible.value = false;
     }
   })
@@ -1012,14 +1031,39 @@ const handleApprove = (data) => {
 
 // 审核-拒绝
 const handleReject = (data) => {
-  if(!data.id) return
-  axios.post("http://10.34.1.25:8010/cj/shebei/deleteSheBeiReview", {id: data.id}).then(res => {
-    if(res.data.code === 0) {
-      toast.add({ severity:'success', summary: '删除成功', detail: '', group: 'cg', life: 3000 });
-      toCheck();
-      // dialogVisible_check.value = false;
+  confirm.require({ 
+    group: 'headless', 
+    message: '请输入拒绝原因?',
+    rejectProps: {
+      icon: 'pi pi-times',
+      label: '取消',
+      outlined: true
+    },
+    acceptProps: {
+      icon: 'pi pi-check',
+      label: '提交'
+    },
+    accept: () => {
+      if(!remark.value) {
+        return  toast.add({ severity: 'warn', summary: '请输入拒绝原因', detail: '', group: 'tc', life: 3000 });
+      }
+
+      axios.post("http://10.34.1.25:8010/cj/shebei/deleteSheBeiReview", {id: data.id}).then(res => {
+        if(res.data.code === 0) {
+          toast.add({ severity:'success', summary: '删除成功', detail: '', group: 'cg', life: 3000 });
+          toCheck();
+
+          updateRemark({id: data.tailid, remark: remark.value});
+          // dialogVisible_check.value = false;
+        }
+      });
+    },
+    reject: () => {
+      remark.value = '';
     }
-  });
+  })
+  // if(!data.id) return
+  
 }
 
 const colDef = {
@@ -1057,7 +1101,10 @@ const getRowHeight = (params) => {
 
 const rowClassRules = ref({
   "text-red": (params)  => {
-    return params.data.bdcj === '必填'
+    return params.data.bdcj === '必填';
+  },
+  'bg-red': (params) => {
+    return params.data.remark && (params.data.remark !== null);
   }
 }) 
 
@@ -1113,7 +1160,7 @@ const getList = async () => {
       permission.value = response1.data.msg;
       response1.data.data.forEach((item, index) => {
         item.index = String(index + 1);
-      })
+      });
       tableData.value = response1.data.data;
     }
 
@@ -1295,6 +1342,8 @@ const handleSubmit = () => {
     if(res.data.code === 0) {
       dialogVisible.value = false;
       toast.add({ severity:'success', summary: '数据添加审核中，等待审核', detail: '', group: 'cg', life: 3000 });
+    } else {
+      toast.add({ severity:'error', summary: res.data.msg, detail: '', group: 'tc', life: 3000 });
     }
   }).catch(err => {
     isSubmiting.value = false;
@@ -1442,6 +1491,10 @@ function handleInput(event, key) {
 }
 .text-red {
   color: red;
+}
+.bg-red {
+  color: white;
+  background-color: red;
 }
 .dialogForm .t2 {
   font-weight: 400;
