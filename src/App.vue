@@ -39,6 +39,7 @@
         <!-- admin 省局用户 -->
         <!-- v-if="permission == 'admin'" -->
         <Button label="数据审核" size="small" severity="warn" @click="toCheck" style="padding: 5px 25px; margin-right: 15px;" />
+        <Button label="二次审核" size="small" severity="help" @click="toSecondCheck" style="padding: 5px 25px; margin-right: 15px;" />
         <Button label="导出" size="small" severity="success" v-if="tableData.length" @click="handleExport" style="padding: 5px 25px;"  />
       </div>
     </div>
@@ -1011,26 +1012,44 @@ const addModel = () => {
 }
 
 const updateRemark = (data) => {
-  axios.post('http://10.34.1.25:8010/cj/shebei/updateRemark', {id: data.tailid, remark: data.remark}).then(res => {
+  axios.post('http://10.34.1.25:8010/cj/shebei/updateRemark', {id: data.id, remark: data.remark}).then(res => {
       
   })
 }
 
 // 审核-批准
-const handleApprove = (data) => {
-  axios.post("http://10.34.1.25:8010/cj/shebei/agreeSheBeiReview", data).then(res => {
-    if(res.data.code === 0) {
-      toast.add({ severity:'success', summary: '批准成功', detail: '', group: 'cg', life: 3000 });
-      toCheck();
+const handleApprove = (data, isSecondCheck) => {
+  if(isSecondCheck) {
+    axios.post("http://10.34.1.25:8010/cj/shebei//agreeSheBeiSecondReview", data).then(res => {
+      if(res.data.code === 0) {
+        toast.add({ severity:'success', summary: '批准成功', detail: '', group: 'cg', life: 3000 });
+        toSecondCheck();
+      }
+    });
+  } else {
+    axios.post("http://10.34.1.25:8010/cj/shebei/agreeSheBeiReview", data).then(res => {
+      if(res.data.code === 0) {
+        toast.add({ severity:'success', summary: '批准成功', detail: '', group: 'cg', life: 3000 });
+        toCheck();
 
-      updateRemark({id: data.tailid, remark: ''})
-      // dialogVisible.value = false;
-    }
-  })
+        updateRemark({id: data.tailid, remark: ''})
+        // dialogVisible.value = false;
+      }
+    });
+  }
 }
 
 // 审核-拒绝
-const handleReject = (data) => {
+const handleReject = (data, isSecondCheck) => {
+  if(isSecondCheck) {
+    axios.post("http://10.34.1.25:8010/cj/shebei/deleteSheBeiSecondReview", {id: data.id}).then(res => {
+      if(res.data.code === 0) {
+        toast.add({ severity:'success', summary: '删除成功', detail: '', group: 'cg', life: 3000 });
+        toSecondCheck();
+      }
+    });
+    return;
+  }
   confirm.require({ 
     group: 'headless', 
     message: '请输入拒绝原因?',
@@ -1066,6 +1085,16 @@ const handleReject = (data) => {
   
 }
 
+const handleModify = (data) => {
+  axios.post("http://10.34.1.25:8010/cj/shebei/insertSheBeiSecondReview", data).then(res => {
+    if (res.data.code === 0) {
+      toast.add({ severity:'success', summary: '错误修改成功', detail: '', group: 'cg', life: 3000 });
+
+      toCheck();
+    }
+  })
+}
+
 const colDef = {
   headerName: '操作', 
   pinned: 'right', width: 150,
@@ -1079,12 +1108,28 @@ const colDef = {
 };
 const colDef_check = {
   headerName: '操作', 
-  pinned: 'right', width: 150,
+  pinned: 'right', width: 200,
   cellRenderer: 'BtnActions',
   cellRendererParams: {
+    type: ['批准', '拒绝', '错误修改'],
+    isSecondCheck: false,
     params: {
       approve: handleApprove,
       reject: handleReject,
+      modify: handleModify,
+    }
+  }
+};
+const colDef_SecondCheck = {
+  headerName: '操作', 
+  pinned: 'right', width: 130,
+  cellRenderer: 'BtnActions',
+  cellRendererParams: {
+    type: ['批准', '拒绝'],
+    isSecondCheck: true,
+    params: {
+      approve: handleApprove,
+      reject: handleReject
     }
   }
 };
@@ -1158,10 +1203,12 @@ const getList = async () => {
     const response1 = await axios.get(`http://10.34.1.25:8010/cj/shebei/getSheBeiTail?userid=${user}`);
     if(response1.data.code === 0) {
       permission.value = response1.data.msg;
-      response1.data.data.forEach((item, index) => {
-        item.index = String(index + 1);
+      tableData.value = response1.data.data.map((item, index) => {
+        return {
+          ...item,
+          index: String(index + 1),
+        }
       });
-      tableData.value = response1.data.data;
     }
 
     const response2 = await axios.get("http://10.34.1.25:8010/cj/shebei/getSheBeiBeiZhu");
@@ -1239,6 +1286,26 @@ const toCheck = () => {
   }
 
   axios.get("http://10.34.1.25:8010/cj/shebei/getSheBeiReview").then(res => {
+    if(res.data.code === 0) {
+      tableData_check.value = res.data.data.map((item, index) => {
+        return {
+          ...item,
+          index: index + 1
+        }
+      });
+    }
+  })
+}
+
+const toSecondCheck = () => {
+  dialogVisible_check.value = true;
+  setCellStyle(columns)
+  columns_check.value = [...columns];
+  if(permission.value == 'admin') {
+    columns_check.value.push({...colDef_SecondCheck})
+  }
+
+  axios.get("http://10.34.1.25:8010/cj/shebei/getSheBeiReviewSecond").then(res => {
     if(res.data.code === 0) {
       tableData_check.value = res.data.data.map((item, index) => {
         return {
@@ -1349,61 +1416,7 @@ const handleSubmit = () => {
     isSubmiting.value = false;
     toast.add({ severity: 'error', summary: '网络错误', detail: '', group: 'tc', life: 3000 });
     console.log(err);
-  })
-
-  // 编辑、新增保存
-  // if(formData.id) {
-  //   axios.post('http://10.34.1.25:8010/cj/shebei/updateSheBeiTailById', formData).then(res => {
-  //     isSubmiting.value = false;
-  //     if(res.data.code === 0) {
-  //       dialogVisible.value = false;
-  //       getList();
-  //       toast.add({ severity: 'success', summary: '修改成功', detail: '', group: 'cg', life: 3000 });
-
-  //       setTimeout(() => {
-  //         const findIndex = tableData.value.findIndex(item => item.id === formData.id);
-  //         if (findIndex !== -1) {
-  //           gridApi.ensureIndexVisible(findIndex, 'middle');
-  //         }
-  //       }, 3000)
-  //     } else {
-  //       toast.add({ severity: 'error', summary: '修改失败，请重试', detail: '', group: 'tc', life: 3000 });
-  //     }
-  //   }).catch(err => {
-  //     isSubmiting.value = false;
-  //     toast.add({ severity: 'error', summary: '网络错误', detail: '', group: 'tc', life: 3000 });
-  //     console.log(err);
-  //   })
-  // } else {
-  //   let params = { ...formData, operation: 'I' };
-    
-  //   // 新增提交审核
-  //   axios.post("http://10.34.1.25:8010/cj/shebei/insertSheBeiReview", params).then(res => {
-  //     isSubmiting.value = false;
-  //     if(res.data.code === 0) {
-  //       dialogVisible.value = false;
-  //       toast.add({ severity:'success', summary: '数据添加审核中，等待审核', detail: '', group: 'cg', life: 3000 });
-  //     }
-  //   }).catch(err => {
-  //     isSubmiting.value = false;
-  //     toast.add({ severity: 'error', summary: '网络错误', detail: '', group: 'tc', life: 3000 });
-  //     console.log(err);
-  //   })
-    // axios.post("http://10.34.1.25:8010/cj/shebei/insertSheBeiTail", addForm.value).then(res => {
-    //   isSubmiting.value = false;
-    //   if(res.data.code === 0) {
-    //     dialogVisible.value = false;
-    //     getList();
-    //     toast.add({ severity:'success', summary: '新增成功', detail: '', group: 'cg', life: 3000 });
-    //   } else {
-    //     toast.add({ severity: 'error', summary: '修改失败，请重试', detail: '', group: 'tc', life: 3000 });
-    //   }
-    // }).catch(err => {
-    //   isSubmiting.value = false;
-    //   toast.add({ severity: 'error', summary: '网络错误', detail: '', group: 'tc', life: 3000 });
-    //   console.log(err);
-    // })
-  // }
+  });
 }
 
 // 初始化
@@ -1493,8 +1506,7 @@ function handleInput(event, key) {
   color: red;
 }
 .bg-red {
-  color: white;
-  background-color: red;
+  background-color: #3b82f682;
 }
 .dialogForm .t2 {
   font-weight: 400;
