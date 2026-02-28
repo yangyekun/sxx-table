@@ -206,7 +206,13 @@
               <DatePicker v-model="addForm.yltm" dateFormat="yymmdd" class="w285" :manualInput="true" @input="handleInput($event, 'yltm')" />
             </div>
           </div>
-          <div class="dialogForm-item"></div>
+          <div class="dialogForm-item">
+            <span class="dialogForm-item-title"> 安装方式: </span>
+            <div class="dialogForm-item-main">
+              <!-- <InputText v-model="addForm.yltm" type="text" placeholder="" /> -->
+              <Select v-model="addForm.yljinstall" :options="selectData.yljinstall" optionLabel="name" optionValue="name" style="width: 285px;" />
+            </div>
+          </div>
         </div>
         <p class="title t2">水位传感器</p>
         <div class="dialogForm-row">
@@ -632,8 +638,8 @@
           <div class="dialogForm-item">
             <span class="dialogForm-item-title"> 项目名称: </span>
             <div class="dialogForm-item-main">
-              <!-- <InputText v-model="addForm.xmmc" type="text" placeholder="" /> -->
-              <Select v-model="addForm.xmmc" :options="selectData.xmmc" optionLabel="name" optionValue="name" @update:modelValue="changeErjiValue(addForm.xmmc, selectData.xmmc, 'xmbh')" style="width: 285px;" />
+              <Select v-model="addForm.xmmc" :options="selectData.xmmc" optionLabel="name" optionValue="name" @update:modelValue="changeErjiValue(addForm.xmmc, selectData.xmmc, 'xmbh')" style="width: 230px;" />
+              <Button label="历史" size="small" @click="search_xmmc" style="margin-left: 10px;" />
             </div>
           </div>
           <div class="dialogForm-item">
@@ -822,6 +828,60 @@
         <Button label="提交" size="small" :disabled="isSubmiting" @click="handleSubmit" style="padding: 5px 25px;" />
       </template> -->
     </Dialog>
+    <Dialog v-model:visible="dialogVisible_xmmc" :style="{ width: '850px' }" maximizable modal :contentStyle="{ height: '450px' }">
+      <template #header style="background-color: red;">
+        <div>
+          <span>历史项目填报记录</span>
+          
+          <Button label="新增" size="small" @click="addXmmc" style="padding: 5px 25px;position: absolute;right: 100px;top: 20px;" />
+        </div>
+      </template>
+      
+      <ag-grid-vue
+        class="ag-theme-alpine"
+        style="flex: 1;height:100%;"
+        :rowData="data_xmmc"
+        :columnDefs="columns_xmmc"
+        @grid-ready="onGridReady_xmmc"
+        :defaultColDef="defColOption"
+        theme="legacy"
+      >
+      </ag-grid-vue>
+    </Dialog>
+    <Dialog v-model:visible="dialog_xmmc" header="新增历史记录" :style="{ width: '450px' }" maximizable modal :contentStyle="{ height: '240px' }">
+      <div class="dialogForm">
+        <div class="dialogForm-item">
+          <span style="width: 80px;"> 项目名称: </span>
+          <div>
+            <InputText v-model="xmmcForm.xmmc" type="text" placeholder="" style="width: 300px;" />
+          </div>
+        </div>
+        <div class="dialogForm-item">
+          <span style="width: 80px;">项目编号:</span>
+          <div>
+            <InputText v-model="xmmcForm.xmbh" type="text" placeholder="" style="width: 300px;" />
+          </div>
+        </div>
+        <div class="dialogForm-item">
+          <span style="width: 80px;">开始时间:</span>
+          <div>
+            <DatePicker v-model="xmmcForm.startTime" dateFormat="yymmdd" class="w285" :manualInput="true" style="width: 300px;" />
+          </div>
+        </div>
+        <div class="dialogForm-item">
+          <span style="width: 80px;">结束时间:</span>
+          <div>
+            <DatePicker v-model="xmmcForm.endTime" dateFormat="yymmdd" class="w285" :manualInput="true" style="width: 300px;" />
+          </div>
+        </div>
+      </div>
+      <template #footer>
+        <Button label="取消" size="small" severity="secondary" @click="dialog_xmmc = false"
+          style="padding-left: 25px; padding-right: 25px;margin-right: 15px;" />
+        <Button label="提交" size="small" @click="saveXmmc"
+          style="padding-left: 25px; padding-right: 25px;" />
+      </template>
+    </Dialog>
   </div>
 </template>
 
@@ -858,6 +918,23 @@ const columns_check = ref([])
 const dialogVisible_check = ref(false)
 const remark = ref('');
 
+let gridApi_xmmc;
+const data_xmmc = ref([]);
+const columns_xmmc = ref([
+  { headerName: "项目名称", field: "xmmc" },
+  { headerName: "项目编号", field: "xmbh" },
+  { headerName: "开始时间", field: "startTime" },
+  { headerName: "结束时间", field: "endTime" },
+]);
+const dialogVisible_xmmc = ref(false);
+const dialog_xmmc = ref(false);
+const xmmcForm = ref({
+  xmmc: "",
+  xmbh: "",
+  startTime: "",
+  endTime: ""
+})
+
 let gridApi;
 const defColOption = {
   sortable: false,
@@ -884,7 +961,7 @@ const addForm = ref({
   ssfzx: "",
   sszd: "",
   ycmc: "",shi: "",xian: "",shfzx: "",shxly: "",shxlym: "",
-  sscz: "",ycxm: "",zcxx: "",zdxx: "",fzxx: "",ylsccj: "",ylxh: "",yllx: "",ylwc: "",yltm: "",swonecj: "",swonexh: "",swonelx: "",swonetm: "",
+  sscz: "",ycxm: "",zcxx: "",zdxx: "",fzxx: "",ylsccj: "",ylxh: "", yljinstall: "",yllx: "",ylwc: "",yltm: "",swonecj: "",swonexh: "",swonelx: "",swonetm: "",
   swtwocj: "", swtwoxh: "",
   swtwolx: "", swtwotm: "",
   zgsw: "", zgfxjc: "",
@@ -910,6 +987,7 @@ watch(() => dialogVisible_check.value, (newVal) => {
 // 表格数据编辑
 const paramsClick = async (data) => {
   let formData = JSON.parse(JSON.stringify(data));
+
   if(formData.ylsccj) {
     let params = selectData.value.ylsccj.find(item => item.name == formData.ylsccj);
 
@@ -993,7 +1071,7 @@ const addModel = () => {
     ssfzx: "",
     sszd: "",
     ycmc: "",shi: "",xian: "",shfzx: "",shxly: "",shxlym: "",
-    sscz: "",ycxm: "",zcxx: "",zdxx: "",fzxx: "",ylsccj: "",ylxh: "",yllx: "",ylwc: "",yltm: "",swonecj: "",swonexh: "",swonelx: "",swonetm: "",
+    sscz: "",ycxm: "",zcxx: "",zdxx: "",fzxx: "",ylsccj: "", yljinstall: "", ylxh: "",yllx: "",ylwc: "",yltm: "",swonecj: "",swonexh: "",swonelx: "",swonetm: "",
     swtwocj: "", swtwoxh: "",
     swtwolx: "", swtwotm: "",
     zgsw: "", zgfxjc: "",
@@ -1177,7 +1255,7 @@ const getList = async () => {
   tableData.value = [];
   pinnedTopRowData.value = [
     {
-      ssfzx: "必填", sszd: "必填", shi: "必填", xian: "必填", shfzx: "必填", shxly: "必填", shxlym: "必填", ycmc: "必填", sscz: "必填",ycxm: "必填",zcxx: "必填",zdxx: "必填",fzxx: "必填",ylsccj: "必填",ylxh: "必填",
+      ssfzx: "必填", sszd: "必填", shi: "必填", xian: "必填", shfzx: "必填", shxly: "必填", shxlym: "必填", ycmc: "必填", sscz: "必填",ycxm: "必填",zcxx: "必填",zdxx: "必填",fzxx: "必填",ylsccj: "必填",ylxh: "必填", yljinstall: "必填",
       yllx: "",ylwc: "必填",yltm: "必填",swonecj: "必填",swonexh: "必填",swonelx: "",swonetm: "必填",swtwocj: "必填", swtwoxh: "必填",
       swtwolx: "", swtwotm: "必填", zgsw: "必填", zgfxjc: "必填",
       zdsw: "必填", zdfxjc: "必填", sqcj: "必填", sqxh: "必填", sqlx: "", sqtm: "必填", 
@@ -1244,6 +1322,53 @@ const changeErjiValue = async (value, option, key) => {
   let data = await updateErji(params.id);
 
   addForm.value[key] = data[0].name;
+}
+
+const search_xmmc = () => {
+  if(addForm.value.id) {
+    dialogVisible_xmmc.value = true;
+    axios.get(`http://10.34.1.25:8010/cj/shebei/getXmTimeByTailId?tailid=${addForm.value.id}`).then(res => {
+      if(res.data.code === 0) {
+        data_xmmc.value = res.data.data;
+      }
+    })
+  } else {
+    toast.add({ severity: 'warn', summary: '请无历史记录', detail: '', group: 'tc', life: 3000 });
+  }
+}
+
+const addXmmc = () => {
+  xmmcForm.value = {
+    xmmc: addForm.value.xmmc,
+    xmbh: "",
+    startTime: "",
+    endTime: ""
+  };
+
+  dialog_xmmc.value = true;
+}
+
+const saveXmmc = () => {
+  if(!addForm.value.id) {
+    return toast.add({ severity: 'warn', summary: '请无历史记录信息', detail: '', group: 'tc', life: 3000 });
+  }
+  let params = {
+    tailid: addForm.value.id,
+    xmmc: xmmcForm.value.xmmc,
+    xmbh: xmmcForm.value.xmbh,
+    startTime: xmmcForm.value.startTime ? dayjs(xmmcForm.value.startTime).format("YYYYMMDD") : "",
+    endTime: xmmcForm.value.endTime ? dayjs(xmmcForm.value.endTime).format("YYYYMMDD") : ""
+  };
+
+  axios.post("http://10.34.1.25:8010/cj/shebei/addXmTime", params).then(res => {
+    setTimeout(() => {
+      dialog_xmmc.value = false;
+    }, 100);
+    if(res.data.code === 0) {
+      console.log(res.data.data);
+      search_xmmc();
+    }
+  });
 }
 
 const init = () => {
@@ -1342,23 +1467,23 @@ const handleExport = () => {
   }
   let custom_obj = config.data.find(item => item.index == "注");
   config.custom = [
-    { 'merged':{'s':[5,4],'e':[5,5]}, 'value': custom_obj.ycmc },
-    { 'merged':{'s':[5,10],'e':[5,11]}, 'value': custom_obj.ylsccj },
-    { 'merged':{'s':[5,15],'e':[5,22]}, 'value': custom_obj.swonecj },
-    { 'merged':{'s':[5,23],'e':[5,26]}, 'value': custom_obj.zgsw },
-    { 'merged':{'s':[5,27],'e':[5,30]}, 'value': custom_obj.sqcj },
-    { 'merged':{'s':[5,31],'e':[5,34]}, 'value': custom_obj.rtucj },
-    { 'merged':{'s':[5,35],'e':[5,37]}, 'value': custom_obj.duanbo },
-    { 'merged':{'s':[5,44],'e':[5,45]}, 'value': custom_obj.bdtwo },
-    { 'merged':{'s':[5,46],'e':[5,48]}, 'value': custom_obj.bdcj },
-    { 'merged':{'s':[5,49],'e':[5,51]}, 'value': custom_obj.wxtm },
-    { 'merged':{'s':[5,52],'e':[5,55]}, 'value': custom_obj.txdmc },
-    { 'merged':{'s':[5,56],'e':[5,57]}, 'value': custom_obj.sd },
-    { 'merged':{'s':[5,64],'e':[5,65]}, 'value': custom_obj.jdfl },
-    { 'merged':{'s':[5,68],'e':[5,70]}, 'value': custom_obj.xmmc },
-    { 'merged':{'s':[5,71],'e':[5,72]}, 'value': custom_obj.sjmc },
-    { 'merged':{'s':[5,77],'e':[5,78]}, 'value': custom_obj.swjone },
-    { 'merged':{'s':[5,83],'e':[5,87]}, 'value': custom_obj.tbtm },
+    { 'merged':{'s':[5, 2],'e':[5, 3]}, 'value': custom_obj.ycmc },
+    { 'merged':{'s':[5, 15],'e':[5, 16]}, 'value': custom_obj.ylsccj },
+    { 'merged':{'s':[5, 21],'e':[5, 28]}, 'value': custom_obj.swonecj },
+    { 'merged':{'s':[5, 29],'e':[5, 32]}, 'value': custom_obj.zgsw },
+    { 'merged':{'s':[5, 33],'e':[5, 36]}, 'value': custom_obj.sqcj },
+    { 'merged':{'s':[5, 37],'e':[5, 40]}, 'value': custom_obj.rtucj },
+    { 'merged':{'s':[5, 41],'e':[5, 43]}, 'value': custom_obj.duanbo },
+    { 'merged':{'s':[5, 50],'e':[5, 51]}, 'value': custom_obj.bdtwo },
+    { 'merged':{'s':[5, 52],'e':[5, 54]}, 'value': custom_obj.bdcj },
+    { 'merged':{'s':[5, 55],'e':[5, 57]}, 'value': custom_obj.wxtm },
+    { 'merged':{'s':[5, 58],'e':[5, 61]}, 'value': custom_obj.txdmc },
+    { 'merged':{'s':[5, 62],'e':[5, 63]}, 'value': custom_obj.sd },
+    { 'merged':{'s':[5, 70],'e':[5, 71]}, 'value': custom_obj.jdfl },
+    { 'merged':{'s':[5, 74],'e':[5, 76]}, 'value': custom_obj.xmmc },
+    { 'merged':{'s':[5, 77],'e':[5, 78]}, 'value': custom_obj.sjmc },
+    { 'merged':{'s':[5, 83],'e':[5, 84]}, 'value': custom_obj.swjone },
+    { 'merged':{'s':[5, 89],'e':[5, 93]}, 'value': custom_obj.tbtm },
   ];
   
   // http://60.174.203.118:5233/export // 公司
@@ -1429,6 +1554,12 @@ const onGridReady = (params) => {
 const onGridReady_check = (params) => {
   gridApi_check = params.api
   gridApi_check.sizeColumnsToFit();
+}
+
+// 初始化
+const onGridReady_xmmc = (params) => {
+  gridApi_xmmc = params.api
+  gridApi_xmmc.sizeColumnsToFit();
 }
 
 // 添加表头

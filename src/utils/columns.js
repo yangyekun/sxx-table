@@ -43,6 +43,7 @@ export const columns_pinned = [
           { field: "yllx", headerName: '类型', width: 110 },
           { field: "ylwc", headerName: '测量误差', width: 200 },
           { field: "yltm", headerName: '雨量计装配时间（年/月/日）', width: 240 },
+          { field: "yljinstall", headerName: '安装方式', width: 150 },
         ]
       },
       {
@@ -294,6 +295,7 @@ export const columns = [
           { field: "yllx", headerName: '类型', width: 110 },
           { field: "ylwc", headerName: '测量误差', width: 200 },
           { field: "yltm", headerName: '雨量计装配时间（年/月/日）', width: 240 },
+          { field: "yljinstall", headerName: '安装方式', width: 150 },
         ]
       },
       {
