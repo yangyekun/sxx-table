@@ -22,7 +22,10 @@
     </div>
     <div class="page-table" style="background: transparent;padding: 0">
       <div class="page-table-list">
-        <div>
+        <div style="display: flex;justify-content: center;align-items: center">
+          <div style="width: 180px">
+            工作年选择:
+          </div>
           <select class="select-date" @change="handleSelect">
             <option v-for="item in state.yearList" :value="item.value">{{ item.lable }}</option>
           </select>

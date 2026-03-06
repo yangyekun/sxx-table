@@ -286,8 +286,8 @@ const getField = (value) => {
 }
 
 const getReportList = () => {
-  // let userId= localStorage.getItem('userid');
-  let userId = `lutianqiang`
+  let userId= localStorage.getItem('userid');
+  // let userId = `lutianqiang`
   // let userId = `hefei`
   state.historyList = []
   state.tableData = []
