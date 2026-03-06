@@ -4,6 +4,8 @@ import Tbqxyl from '../views/tbqxyl/index.vue';
 import Zdsltj from '../views/zdsltj/index.vue';
 import Zrzxs from '../views/zrzxs/index.vue';
 import Zdycbb from '../views/zdycbb/index.vue';
+import Xqzdgztz from '../views/xqzdgztz/index.vue';
+import Lookxqzdgztz from '../views/lookxqzdgztz/index.vue';
 
 const router = createRouter({
   history: createWebHashHistory(),
@@ -13,6 +15,8 @@ const router = createRouter({
     { path: '/zdsltj', name: 'zdsltj',component: Zdsltj },
     { path: '/zrzxs', name: 'zrzxs',component: Zrzxs },
     { path: '/zdycbb', name: 'zdycbb',component: Zdycbb },
+    { path: '/xqzdgztz', name: 'xqzdgztz',component: Xqzdgztz },
+    { path: '/lookxqzdgztz', name: 'lookxqzdgztz',component: Lookxqzdgztz },
     { path: '/', name: 'root', redirect: '/tbqxyl' },
     { path: '/:pathMatch(.*)*', name: 'notFound', redirect: '/tbqxyl' }
   ]
