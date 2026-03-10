@@ -124,9 +124,9 @@ const handleSelect = (e) =>{
 }
 // 修改填报内容
 const saveDataToBackend = (params) => {
-  // let userId = localStorage.getItem('userid');
+  let userId = localStorage.getItem('userid');
   // let userId =`lutianqiang`
-  let userId =`zjt`
+  // let userId =`zjt`
   let form = {
     userId: userId,
     id: params.id,
@@ -164,9 +164,9 @@ const getReportList = () => {
   const stWeekDay = dayjs().day(1).format('YYYY-MM-DD')
   const edWeekDay = dayjs().day(7).format('YYYY-MM-DD')
   let day = stWeekDay+'~'+edWeekDay
-  // let userId= localStorage.getItem('userid');
+  let userId= localStorage.getItem('userid');
   // let userId = `lutianqiang`
-  let userId = `zjt`
+  // let userId = `zjt`
   // let userId = `hefei`
   state.historyList = []
   state.tableData = []
@@ -240,7 +240,7 @@ const  tooltipValueGetter = (params) => {
           if (fieldData && Array.isArray(fieldData) && fieldData.length > 0) {
             fieldData.forEach(i => {
               if (i) {
-                state.tooltips += '修改人:' + (i.deptId || '') +'<br>'+ '修改时间:' + (dayjs(i.updateTime).format('YYYY-MM-DD HH:mm')+'<br>'
+                state.tooltips += '修改人:' + (i.creatorId || '') +'<br>'+ '修改时间:' + (dayjs(i.updateTime).format('YYYY-MM-DD HH:mm')+'<br>'
                     || '')
               }
             })
