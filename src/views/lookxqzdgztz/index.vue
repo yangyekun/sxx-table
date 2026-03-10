@@ -3,7 +3,7 @@
     <Toast position="top-center" group="tc">
       <template #container="{ message, closeCallback }">
         <div style="padding: 8px 15px;display: flex; align-items: center;">
-<!--          <i class="pi pi-times-circle" style="color: 'var(&#45;&#45;p-red-500)'; margin-right: 5px;"></i>-->
+          <!--          <i class="pi pi-times-circle" style="color: 'var(&#45;&#45;p-red-500)'; margin-right: 5px;"></i>-->
           {{ message.summary }}
         </div>
       </template>
@@ -12,33 +12,20 @@
       <div flex-y-center style="display: flex;justify-content: space-between;align-items: center;width: 100%">
         <div class="point-title">
           <span class="point"></span>
-          <span class="point-label" style="color: #09090b">汛前重点工作台账</span>
+          <span class="point-label" style="color: #09090b;width: 140px">汛前重点工作台账</span>
+          <select class="select-date" @change="handleSelect" style="width: 150px">
+            <option v-for="item in state.historyList" :value="item.key">{{ item.name }}</option>
+          </select>
         </div>
         <div>
-          <Button label="刷新" size="small" @click="getReportList" style="padding: 5px 25px;color:#ffffff;margin-right: 10px;" />
-          <Button label="导出" size="small" @click="handleExport" severity="success" style="padding: 5px 25px;color:#ffffff;" />
+          <Button label="刷新" size="small" @click="getReportList"
+                  style="padding: 5px 25px;color:#ffffff;margin-right: 10px;"/>
+          <Button label="导出" size="small" @click="handleExport" severity="success"
+                  style="padding: 5px 25px;color:#ffffff;"/>
         </div>
       </div>
     </div>
     <div class="page-table" style="background: transparent;padding: 0">
-      <div class="page-table-list">
-        <div style="display: flex;justify-content: center;align-items: center">
-          <div style="width: 180px">
-            工作年选择:
-          </div>
-          <select class="select-date" @change="handleSelect">
-            <option v-for="item in state.yearList" :value="item.value">{{ item.lable }}</option>
-          </select>
-        </div>
-        <div
-            v-for="item in state.historyList"
-            :key="item.index"
-            @click="handleItemClick(item)"
-            :class="{ active: state.active===item.index }"
-        >
-        {{item.name}}
-        </div>
-      </div>
       <ag-grid-vue
           class="ag-theme-alpine"
           style="flex: 1;"
@@ -47,6 +34,7 @@
           @grid-ready="onGridReady"
           :defaultColDef="gridOptions.defaultColDef"
           :grid-options="gridOptions"
+          tooltipShowDelay="0"
           theme="legacy">
       </ag-grid-vue>
     </div>
@@ -58,36 +46,36 @@ import {ref, onMounted, reactive} from 'vue';
 import dayjs from "dayjs";
 import {useToast} from 'primevue/usetoast';
 import {AgGridVue} from "ag-grid-vue3";
-import {userid, reportList} from "@/api/url.js";
+import {userid, reportList, listHistory} from "@/api/url.js";
 import {column} from '@/utils/columnDefs.js'
 import axios from "axios";
+import CustomTooltip from "@/views/xqzdgztz/customtooltip.js";
 
 defineOptions({
   name: 'lookxqzdgztz'
 })
 const toast = useToast()
 const state = reactive({
-  dateTime: '',
-  yearList: [],
   historyList: [],
   tableData: [],
   columnDefs: [],
+  historyIdList: [],
   msg: '',
   field: '',
-  active:1,
-  newData:{}
+  active: 1,
+  newData: {}
 })
 const handleExport = () => {
-  let dataColumn=JSON.parse(JSON.stringify(state.columnDefs))
+  let dataColumn = JSON.parse(JSON.stringify(state.columnDefs))
   const visibleColumns = dataColumn
       .map(item => ({...item, width: 20}));
-  visibleColumns.forEach(item=>{
-    item.title=item.headerName
+  visibleColumns.forEach(item => {
+    item.title = item.headerName
   })
   const config = {
     headers: visibleColumns.map(item => ({...item, width: 20})),
     data: state.tableData,
-    headerDeep:1,
+    headerDeep: 1,
     fileName: '汛前重点工作台账'
   };
   // http://60.174.203.118:5233/export // 公司
@@ -98,37 +86,20 @@ const handleExport = () => {
       a.href = res.data.data;
       a.click();
     } else {
-      toast.add({ severity: 'error', summary: '导出失败，请重试', detail: '', group: 'tc', life: 3000 });
+      toast.add({severity: 'error', summary: '导出失败，请重试', detail: '', group: 'tc', life: 3000});
     }
   }).catch(err => {
-    toast.add({ severity: 'error', summary: '导出失败，请重试', detail: '', group: 'tc', life: 3000 });
+    toast.add({severity: 'error', summary: '导出失败，请重试', detail: '', group: 'tc', life: 3000});
     console.log(err);
   })
 }
 const handleSelect = (e) => {
-  let year = e.target.value
-}
-// 列表点击事件
-const handleItemClick = (data) => {
-  state.dateTime = data.name
-  state.active=data.index
-  for (let k in state.newData){
-    if(k===data.key){
-      state.tableData=state.newData[k]
+  let value = e.target.value
+  for (let k in state.newData) {
+    if (k === value) {
+      state.tableData = state.newData[k]
     }
   }
-}
-
-// 获取用户id
-const getUserId = () => {
-  let userId= localStorage.getItem('userid');
-  // let userId = `lutianqiang`
-  return
-  userid(userId).then(res => {
-    if (res.code === 0 && res.data.length) {
-      console.log(res.data)
-    }
-  })
 }
 
 const getField = (value) => {
@@ -140,127 +111,71 @@ const getField = (value) => {
 }
 
 const getReportList = () => {
-  let userId= localStorage.getItem('userid');
+  // 获取本周一至本周末日期
+  const stWeekDay = dayjs().day(1).format('YYYY-MM-DD')
+  const edWeekDay = dayjs().day(7).format('YYYY-MM-DD')
+  let day = stWeekDay + '~' + edWeekDay
+  // let userId= localStorage.getItem('userid');
   // let userId = `lutianqiang`
+  let userId = `zjt`
   // let userId = `hefei`
   state.historyList = []
   state.tableData = []
   state.columnDefs = column
   reportList(userId).then(res => {
-    let columns = [
-      {
-        field: 'sq',
-        title: '水情通信处',
-        headerName: '水情通信处',
-        width: 300,
-        editable: false,
-        cellEditor: null,
-        headerCellStyle: {textAlign: 'center'},
-      },
-      {
-        field: 'hf',
-        title: '合肥局',
-        headerName: '合肥局',
-        width: 300,
-        editable: false,
-        cellEditor: null,
-        headerCellStyle: {textAlign: 'center'},
-      }, {
-        field: 'sz',
-        title: '宿州局',
-        headerName: '宿州局',
-        width: 300,
-        editable: false,
-        cellEditor: null,
-        headerCellStyle: {textAlign: 'center'},
-      },
-      {
-        field: 'bb',
-        title: '蚌埠局',
-        headerName: '蚌埠局',
-        width: 300,
-        editable: false,
-        cellEditor: null,
-        headerCellStyle: {textAlign: 'center'},
-      },
-      {
-        field: 'fy',
-        title: '阜阳局',
-        headerName: '阜阳局',
-        width: 300,
-        editable: false,
-        cellEditor: null,
-        headerCellStyle: {textAlign: 'center'},
-      },
-      {
-        field: 'cz',
-        title: '滁州局',
-        headerName: '滁州局',
-        width: 300,
-        editable: false,
-        cellEditor: null,
-        headerCellStyle: {textAlign: 'center'},
-      },
-      {
-        field: 'la',
-        title: '六安局',
-        headerName: '六安局',
-        width: 300,
-        editable: false,
-        cellEditor: null,
-        headerCellStyle: {textAlign: 'center'},
-      },
-      {
-        field: 'mas',
-        title: '马鞍山局',
-        headerName: '马鞍山局',
-        width: 300,
-        editable: false,
-        cellEditor: null,
-        headerCellStyle: {textAlign: 'center'},
-      },
-      {
-        field: 'wh',
-        title: '芜湖局',
-        headerName: '芜湖局',
-        width: 300,
-        editable: false,
-        cellEditor: null,
-        headerCellStyle: {textAlign: 'center'},
-      },
-      {
-        field: 'hs',
-        title: '黄山局',
-        headerName: '黄山局',
-        width: 300,
-        editable: false,
-        cellEditor: null,
-        headerCellStyle: {textAlign: 'center'},
-      }]
-    state.columnDefs = [...state.columnDefs, ...columns]
-    state.tableData = res.data
-    state.newData=res.data
-    getField(res.msg)
-    for (let k in res.data) {
-      state.tableData = res.data[k]
-      state.historyList.push({
-        key: k,
-        name: dayjs(k.split('~')[0]).format('MM月DD日') + '-' + dayjs(k.split('~')[1]).format('MM月DD日'),
+    if (res.code === 0) {
+      state.tableData = res.data
+      state.newData = res.data
+      getField(res.msg)
+      for (let k in res.data) {
+        state.tableData = res.data[k]
+        state.historyList.push({
+          key: k,
+          name: dayjs(k.split('~')[0]).format('MM月DD日') + '-' + dayjs(k.split('~')[1]).format('MM月DD日'),
+        })
+      }
+      state.historyList = state.historyList.reverse()
+      state.historyList.forEach((item, index) => {
+        item['index'] = index + 1
+      })
+      state.columnDefs.forEach(item => {
+        // 设置鼠标悬停提示
+        item.tooltipValueGetter = tooltipValueGetter
+      })
+// 默认使用本周日期数据
+      state.tableData = JSON.parse(JSON.stringify(res.data[day]))
+      state.msg = res.msg
+    }
+  })
+}
+const  tooltipValueGetter = (params) => {
+  state.tooltips = ''
+  const excludedFields = ["sortOrder", "task", "taskDescription", "timeLimit", "responsiblePerson", "involvedDepartments"];
+  if (!excludedFields.includes(params.colDef.field)) {
+    if (state.historyIdList && Array.isArray(state.historyIdList)) {
+      state.historyIdList.forEach(item => {
+        if (item && item.id === params.data.id) {
+          const fieldData = item[params.colDef.field]
+          // 确保是数组且不为空
+          if (fieldData && Array.isArray(fieldData) && fieldData.length > 0) {
+            fieldData.forEach(i => {
+              if (i) {
+                state.tooltips += '修改人:' + (i.deptId || '') +'<br>'+ '修改时间:' + (dayjs(i.updateTime).format('YYYY-MM-DD HH:mm')+'<br>'
+                    || '')
+              }
+            })
+          }
+        }
       })
     }
-    state.historyList=state.historyList.reverse()
-    state.historyList.forEach((item,index)=>{
-      item['index']=index+1
-    })
-    // 使用第一个时期的数据作为基础数据
-    const firstKey = Object.keys(res.data)[Object.keys(res.data).length-1]
-    state.tableData = JSON.parse(JSON.stringify(res.data[firstKey]))
-    // 为每条数据添加 index
-    state.tableData.forEach((item, index) => {
-      item['index'] = index + 1
-    })
-    state.msg = res.msg
-    state.dateTime = state.historyList[0].name
+    return state.tooltips
+  }
+}
+const getHistoryData = () =>{
+  listHistory().then(res=>{
+    if(res.code === 0){
+      state.historyIdList=res.data
+    }
   })
 }
 let gridApi;
@@ -272,7 +187,11 @@ const gridOptions = ref({
     autoHeight: true,
     editable: true,
     // filter: "agSetColumnFilter",
+    tooltipComponent : CustomTooltip
   },
+  tooltipMouseTrack: true,
+  tooltipShowDelay: 500,  // 缩短延迟效果
+  tooltipInteraction: true,
 })
 // 初始化
 const onGridReady = (params) => {
@@ -283,16 +202,8 @@ onMounted(() => {
   state.stm = dayjs().add(-3, "d").format("YYYY-MM-DD");
   state.etm = dayjs().format("YYYY-MM-DD");
   state.sHour = state.eHour = dayjs().format("HH");
-  // getUserId()
-  const currentYear = dayjs().year()
-  for (let year = 1950; year <= currentYear; year++) {
-    state.yearList.push({
-      value: year,
-      lable: year + '年'
-    })
-  }
-  state.yearList = state.yearList.reverse()
   getReportList()
+  getHistoryData()
 })
 
 </script>
@@ -324,10 +235,12 @@ onMounted(() => {
   border-radius: 4px;
   transition: all 0.3s;
 }
+
 .page-table-list div.active {
   background-color: #9DC8FD;
   //color: #cccccc;
 }
+
 .page-table-list div:hover {
   background-color: #f0f0f0;
 }

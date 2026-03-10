@@ -72,3 +72,10 @@ export function reportList(params) {
         method: 'get',
     });
 }
+// 重点工作台账历史修改记录
+export function listHistory(params) {
+    return http({
+        url: `/cj/api/report/listHistory`,
+        method: 'get',
+    });
+}
