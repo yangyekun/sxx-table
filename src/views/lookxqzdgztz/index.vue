@@ -13,7 +13,7 @@
         <div class="point-title">
           <span class="point"></span>
           <span class="point-label" style="color: #09090b;width: 140px">汛前重点工作台账</span>
-          <select class="select-date" @change="handleSelect" style="width: 150px">
+          <select class="select-date" v-model="state.selectedWeek" @change="handleSelect" style="width: 150px">
             <option v-for="item in state.historyList" :value="item.key">{{ item.name }}</option>
           </select>
         </div>
@@ -62,6 +62,7 @@ const state = reactive({
   historyIdList: [],
   msg: '',
   field: '',
+  selectedWeek: '',
   active: 1,
   newData: {}
 })
@@ -138,6 +139,8 @@ const getReportList = () => {
       state.historyList.forEach((item, index) => {
         item['index'] = index + 1
       })
+      // 设置下拉框默认选中当前周
+      state.selectedWeek = day
       state.columnDefs.forEach(item => {
         // 设置鼠标悬停提示
         item.tooltipValueGetter = tooltipValueGetter

@@ -13,7 +13,7 @@
         <div class="point-title">
           <span class="point"></span>
           <span class="point-label" style="color: #09090b;width: 140px">汛前重点工作填报</span>
-          <select class="select-date" @change="handleSelect" style="width: 150px">
+          <select class="select-date"  v-model="state.selectedWeek" @change="handleSelect" style="width: 150px">
             <option v-for="item in state.historyList" :value="item.key">{{ item.name }}</option>
           </select>
           <span class="point-label" style="color:red;margin-left: 20px;font-size: 12px">提示：仅限填报本周及本周之后工作任务（可多次填报），历史数据不可修改。</span>
@@ -64,7 +64,8 @@ const state = reactive({
   msg: '',
   field: '',
   timeShow:false,
-  tooltips:''
+  tooltips:'',
+  selectedWeek:'',
 })
 //  导出
 const handleExport = () => {
@@ -98,6 +99,7 @@ const handleExport = () => {
 }
 // 下拉选择事件
 const handleSelect = (e) =>{
+  let userId = localStorage.getItem('userid');
   let value =e.target.value
   for (let k in state.newData){
     if(k===value){
@@ -111,16 +113,22 @@ const handleSelect = (e) =>{
   if (st < currentWeekStart) {
     state.timeShow=false
     console.log('这是历史周次，不可编辑')
+    state.columnDefs.forEach(item=>{
+      item.editable = false
+    })
   } else {
     state.timeShow=true
+    state.columnDefs.forEach(item=>{
+      if((userId === 'sj' || userId === 'zjt' || userId === 'mh') && state.msg === '水情通信处'){
+        item.editable = true
+        console.log('省局')
+      }else if((userId !== 'sj' || userId !== 'zjt' || userId !== 'mh')&& state.msg !== '水情通信处'){
+        item.editable = true
+        console.log('非省局')
+      }
+    })
     console.log('这是本周，可以编辑')
   }
-  // 动态处理对应局是否可修改历史数据
-  state.columnDefs.forEach(item=>{
-    if (item.field === state.field) {
-      item.editable = state.timeShow
-    }
-  })
 }
 // 修改填报内容
 const saveDataToBackend = (params) => {
@@ -191,6 +199,8 @@ const getReportList = () => {
       state.tableData = JSON.parse(JSON.stringify(res.data[day]))
       state.msg = res.msg
       state.dateTime = state.historyList[0].name
+      // 设置下拉框默认选中当前周
+      state.selectedWeek = day
       state.columnDefs.forEach(item => {
         // 设置鼠标悬停提示
         item.tooltipValueGetter=tooltipValueGetter
