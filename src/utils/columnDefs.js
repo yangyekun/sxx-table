@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 
 export const column = [
-    {
+/*    {
         field: "sortOrder",
         title: "序号",
         headerName: '序号',
@@ -9,7 +9,7 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
-    },
+    },*/
     {
         field: "task",
         title: "汛前任务",
@@ -20,6 +20,9 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
+        cellStyle:{
+            lineHeight: '1.8',
+        }
     },
     {
         field: "taskDescription",
@@ -31,6 +34,9 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
+        cellStyle:{
+            lineHeight: '1.8',
+        }
     },
     {
         field: "timeLimit",
@@ -40,6 +46,9 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
+        cellStyle:{
+            lineHeight: '1.8',
+        }
     },
     {
         field: "responsiblePerson",
@@ -49,6 +58,9 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
+        cellStyle:{
+            lineHeight: '1.8',
+        }
     },
     {
         field: "involvedDepartments",
@@ -58,6 +70,9 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
+        cellStyle:{
+            lineHeight: '1.8',
+        }
     },
     {
         field: 'sq',
@@ -134,6 +149,15 @@ export const column = [
         field: 'wh',
         title: '芜湖局',
         headerName: '芜湖局',
+        width: 200,
+        editable: false,
+        cellEditor: null,
+        headerCellStyle: {textAlign: 'center'},
+    },
+    {
+        field: 'aq',
+        title: '安庆局',
+        headerName: '安庆局',
         width: 200,
         editable: false,
         cellEditor: null,
