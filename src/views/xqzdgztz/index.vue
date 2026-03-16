@@ -16,7 +16,7 @@
           <select class="select-date" v-model="state.selectedWeek" @change="handleSelect" style="width: 150px">
             <option v-for="item in state.historyList" :value="item.key">{{ item.name }}</option>
           </select>
-          <span class="point-label" style="color:red;margin-left: 20px;font-size: 12px">提示：仅限填报本周及本周之后工作任务（可多次填报），历史数据不可修改。</span>
+          <span class="point-label" style="color:red;margin-left: 20px;font-size: 12px">提示：仅限填报本周工作任务（可多次填报），历史数据不可修改。</span>
         </div>
         <div>
           <Button label="刷新" size="small" @click="getReportList"
@@ -86,7 +86,7 @@ const state = reactive({
   timeShow: false,
   tooltips: '',
   selectedWeek: '',
-  treeData : {}
+  treeData: {}
 })
 //  导出
 const handleExport = () => {
@@ -120,21 +120,23 @@ const handleExport = () => {
 }
 // 下拉选择事件
 const handleSelect = (e) => {
-  state.treeData={}
+  state.treeData = {}
   let userId = localStorage.getItem('userid');
+  // let userId =`lutianqiang`
   // let userId = `huangshan`
-  // let userId =`zjt`
+  // let userId = `zjt`
   let value = e.target.value
   // 第一条历史数据不进行处理，直接赋值
-  if(value === state.historyList[state.historyList.length-1].key){
+  if (value === state.historyList[state.historyList.length - 1].key) {
     state.tableData = JSON.parse(JSON.stringify(state.newData[value]))
-  }else {
-    getTreeData(JSON.parse(JSON.stringify(state.newData)),value)
+  } else {
+    getTreeData(JSON.parse(JSON.stringify(state.newData)), value)
   }
   // 所选日期时间戳
   let st = dayjs(value.split('~')[0]).startOf('day').valueOf()
   // 获取本周一时间戳
-  const currentWeekStart = dayjs().day(1).startOf('day').valueOf()
+  // const currentWeekStart = dayjs().day(1).startOf('day').valueOf()
+  const currentWeekStart = dayjs(state.dayOne).valueOf()
   if (st < currentWeekStart) {
     state.timeShow = false
     console.log('这是历史周次，不可编辑')
@@ -153,7 +155,7 @@ const handleSelect = (e) => {
           }
           return true
         }
-        console.log(item,'省局')
+        console.log(item, '省局')
       } else if ((userId !== 'sj' || userId !== 'zjt' || userId !== 'mh') && state.msg !== '水情通信处') {
         item.editable = (params) => {
           // 如果是历史数据子节点，不可编辑
@@ -162,13 +164,13 @@ const handleSelect = (e) => {
           }
           return true
         }
-        console.log(item,'非省局')
+        console.log(item, '非省局')
       }
-      if(item.field === state.field){
+      if (item.field === state.field) {
         item.cellEditor = item.editable ? 'agTextCellEditor' : null
-      }else {
+      } else {
         item.cellEditor = null
-        item.editable=false
+        item.editable = false
       }
       item.cellEditorPopu = true
     })
@@ -180,7 +182,7 @@ const handleSelect = (e) => {
 const saveDataToBackend = (params) => {
   let userId = localStorage.getItem('userid');
   // let userId =`lutianqiang`
-  // let userId =`zjt`
+  // let userId = `zjt`
   // let userId =`huangshan`
   let form = {
     userId: userId,
@@ -216,8 +218,15 @@ const getField = (value) => {
 // 调用列表接口
 const getReportList = () => {
   // 获取本周一至本周末日期
-  const stWeekDay = dayjs().day(1).format('YYYY-MM-DD')
-  const edWeekDay = dayjs().day(7).format('YYYY-MM-DD')
+  /*  const stWeekDay = dayjs().day(1).format('YYYY-MM-DD')
+    const edWeekDay = dayjs().day(0).format('YYYY-MM-DD')*/
+  const today = dayjs()
+  const currentDay = today.day()
+// 本周一：如果是周日就减6天，否则用 day(1)
+  const monday = currentDay === 0 ? today.subtract(6, 'day') : today.day(1)
+  const stWeekDay = monday.format('YYYY-MM-DD')
+  const edWeekDay = monday.add(6, 'day').format('YYYY-MM-DD')
+  state.dayOne = stWeekDay
   let day = stWeekDay + '~' + edWeekDay
   let userId= localStorage.getItem('userid');
   // let userId = `lutianqiang`
@@ -226,7 +235,6 @@ const getReportList = () => {
   // let userId = `huangshan`
   state.historyList = []
   state.tableData = []
-
   reportList(userId).then(res => {
     if (res.code === 0) {
       state.tableData = res.data
@@ -254,13 +262,7 @@ const getReportList = () => {
         item.tooltipValueGetter = tooltipValueGetter
         if (item.title === res.msg) {
           // 默认不可编辑
-          item.editable = (params) => {
-            // 如果是历史数据子节点，不可编辑
-            if (params.data.isHistory) {
-              return false
-            }
-            return false
-          }
+          item.editable= false
           // 省局账号（sj、zjt、mh）可以修改水情通信处
           if ((userId === 'sj' || userId === 'zjt' || userId === 'mh') && state.msg === '水情通信处') {
             item.editable = (params) => {
@@ -306,20 +308,20 @@ const getReportList = () => {
   })
 }
 // 处理表格树数据
-const getTreeData = (data,time=false) => {
-  state.treeData={}
-  if(time){
+const getTreeData = (data, time = false) => {
+  state.treeData = {}
+  if (time) {
     // 下拉选择处理
     let st = dayjs(time.split('~')[0]).startOf('day').valueOf() // 当前所选日期时间戳
     for (let k in data) {
       // 获取小于当前周的数据时间戳
       let hisst = dayjs(k.split('~')[0]).startOf('day').valueOf()
-      if(st > hisst){
+      if (st > hisst) {
         state.treeData[k] = data[k]
       }
     }
-    state.tableData=data[time]
-  }else {
+    state.tableData = data[time]
+  } else {
     // 默认处理
     for (let k in data) {
       // 获取小于当前周的数据时间戳
@@ -332,20 +334,25 @@ const getTreeData = (data,time=false) => {
       }
     }
   }
-  for (let k in state.treeData){
+  for (let k in state.treeData) {
     state.treeData[k].forEach(item => {
-      item.task=''
-      item.taskDescription=''
-      item.timeLimit=''
-      item.responsiblePerson=''
-      item.involvedDepartments=dayjs(k.split('~')[0]).format('MM月DD日')+'-'+dayjs(k.split('~')[1]).format('MM月DD日')
-      // 标记为历史数据，如果历史日期小于本周日期则不可编辑
-      item.isHistory = dayjs(k.split('~')[0]).startOf('day').valueOf()<dayjs().day(1).startOf('day').valueOf()?true:false
+      item.task = ''
+      item.taskDescription = ''
+      item.timeLimit = ''
+      item.responsiblePerson = ''
+      item.involvedDepartments = dayjs(k.split('~')[0]).format('MM月DD日') + '-' + dayjs(k.split('~')[1]).format('MM月DD日')
+      // 如果是本周数据则可以编辑
+      item.isHistory = dayjs(k.split('~')[0]).startOf('day').valueOf() === dayjs(state.dayOne).startOf('day').valueOf() ? false : true
       item.historyWeek = k
     })
   }
   state.tableData.forEach(item => {
-      item.children = []
+    // Deleted:item.isHistory=true
+    // 根据当前选择的周次判断是否为历史数据
+    const currentWeekStart = dayjs(state.dayOne).startOf('day').valueOf()
+    const selectedWeekStart = dayjs(state.selectedWeek.split('~')[0]).startOf('day').valueOf()
+    item.isHistory = selectedWeekStart !== currentWeekStart
+    item.children = []
     // 从 treeData 中查找匹配的 children
     for (let k in state.treeData) {
       state.treeData[k].forEach(historyItem => {

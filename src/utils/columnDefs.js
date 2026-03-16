@@ -1,15 +1,15 @@
 import dayjs from "dayjs";
 
 export const column = [
-/*    {
-        field: "sortOrder",
-        title: "序号",
-        headerName: '序号',
-        width: 70,
-        pinned: 'left',
-        editable: false,
-        cellEditor: null,
-    },*/
+    /*    {
+            field: "sortOrder",
+            title: "序号",
+            headerName: '序号',
+            width: 70,
+            pinned: 'left',
+            editable: false,
+            cellEditor: null,
+        },*/
     {
         field: "task",
         title: "汛前任务",
@@ -20,7 +20,7 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
-        cellStyle:{
+        cellStyle: {
             lineHeight: '1.8',
         }
     },
@@ -34,7 +34,7 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
-        cellStyle:{
+        cellStyle: {
             lineHeight: '1.8',
         }
     },
@@ -46,7 +46,7 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
-        cellStyle:{
+        cellStyle: {
             lineHeight: '1.8',
         }
     },
@@ -58,7 +58,7 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
-        cellStyle:{
+        cellStyle: {
             lineHeight: '1.8',
         }
     },
@@ -70,7 +70,7 @@ export const column = [
         pinned: 'left',
         editable: false,
         cellEditor: null,
-        cellStyle:{
+        cellStyle: {
             lineHeight: '1.8',
         }
     },
@@ -82,6 +82,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     },
     {
         field: 'hf',
@@ -91,6 +94,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     }, {
         field: 'sz',
         title: '宿州局',
@@ -99,6 +105,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     },
     {
         field: 'bb',
@@ -108,6 +117,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     },
     {
         field: 'fy',
@@ -117,6 +129,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     },
     {
         field: 'cz',
@@ -126,6 +141,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     },
     {
         field: 'la',
@@ -135,6 +153,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     },
     {
         field: 'mas',
@@ -144,6 +165,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     },
     {
         field: 'wh',
@@ -153,6 +177,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     },
     {
         field: 'aq',
@@ -162,6 +189,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     },
     {
         field: 'hs',
@@ -171,6 +201,9 @@ export const column = [
         editable: false,
         cellEditor: null,
         headerCellStyle: {textAlign: 'center'},
+        cellStyle: {
+            lineHeight: '1.8',
+        }
     }
 ]
 
