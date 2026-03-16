@@ -40,42 +40,58 @@ export function getTotalW(data) {
   });
 }
 
-// 尹权哲
-// 站点已测补报
-export function listHs(data) {
+// 尹权哲 
+// 站点以测补报
+// const prefix = '/data';
+const prefix = '/water-flood/data';
+
+export function getYcbb(data) {
   return http({
-    url: '/water-flood/data/listHs',
+    url: prefix + '/v1/ycbb',
     method: 'post',
     data
   });
 }
 
-// 获取用户
-export function userid(params) {
-    return http({
-        url: `/cj/shebei/getSheBeiTail?userid=${params}`,
-        method: 'get',
-    });
+export function getgcx(data) {
+  return http({
+    url: prefix + '/v1/getgcx',
+    method: 'post',
+    data
+  });
 }
-// 重点工作台账保存
-export function submit(data) {
-    return http({
-        url: `/cj/api/report/submit`,
-        method: 'post',
-        data
-    });
+
+export function getCsdata(data) {
+  return http({
+    url: prefix + '/v1/getCsdata',
+    method: 'post',
+    data
+  });
 }
-// 重点工作台账列表
-export function reportList(params) {
-    return http({
-        url: `/cj/api/report/list?userId=${params}`,
-        method: 'get',
-    });
+
+export function listHss(data) {
+  return http({
+    url: prefix + '/listHss',
+    method: 'post',
+    data
+  });
 }
-// 重点工作台账历史修改记录
-export function listHistory(params) {
-    return http({
-        url: `/cj/api/report/listHistory`,
-        method: 'get',
-    });
+
+export function getCcByStcd(data) {
+  return http({
+    url: prefix + '/getCcByStcd',
+    method: 'post',
+    data
+  });
+}
+
+
+// 逐潮高低潮摘录
+export function getGdz(data) {
+  return http({
+    url: prefix + '/getGdzs',
+    // url: prefix + '/getGdz',
+    method: 'post',
+    data
+  });
 }

@@ -1,0 +1,496 @@
+<template>
+    <div class="page">
+        <Toast position="top-center" group="tc">
+            <template #container="{ message, closeCallback }">
+                <div style="padding: 8px 15px;display: flex; align-items: center;">
+                <i class="pi pi-times-circle" style="color: 'var(--p-red-500)'; margin-right: 5px;"></i>
+                {{ message.summary }}
+                </div>
+            </template>
+        </Toast>
+
+        <div class="page-head">
+            <div flex-y-center>
+                <div class="point-title">
+                <span class="point"></span>
+                <span class="point-label">潮位站高低潮摘录</span>
+                </div>
+            </div>
+            <div>
+                <span>查询时间：</span>
+                <DatePicker v-model="stm" dateFormat="yy-mm-dd" w-110px />
+                <!-- <Select v-model="sHour" :options="hourArr" optionLabel="label" optionValue="value" w-70px m-x-5px /> -->
+                <span m-x-5px>-</span>
+                <DatePicker v-model="etm" dateFormat="yy-mm-dd" w-110px />
+                <!-- <Select v-model="eHour" :options="hourArr" optionLabel="label" optionValue="value" w-70px m-x-5px /> -->
+                <span ml-15px>测站选择：</span>
+                <Select v-model="stcd" :options="siteArr" optionLabel="STNM" optionValue="STCD" w-120px />
+
+                <Button label="查询" size="small" @click="getList" :disabled="isLoading" ml-10px style="padding: 5px 25px;" />
+                <Button label="已摘录数据" size="small" severity="success" v-if="tabledata.length" @click="handleShowTable" ml-10px style="padding: 5px 25px;"  />
+            </div>
+        </div>
+
+        <div class="page-main">
+            <div id="myChart" wh-full></div>
+        </div>
+
+        <Dialog v-model:visible="visible" modal>
+            <template #header>
+                <div flex-between>
+                    <h3>{{ headerTitle }}</h3>
+                    <p absolute top-22px right-60px><i title="导出" class="pi pi-download" cursor-pointer style="font-size: 15px;" @click="exportData"></i></p>
+                </div>
+            </template>
+            <div w-640px h-360px class="page-main" p-0px>
+                <ag-grid-vue
+                    class="ag-theme-alpine"
+                    style="flex: 1;"
+                    :rowData="tabledata" 
+                    :columnDefs="columnDefs" 
+                    @grid-ready="onGridReady"
+                    :defaultColDef="defColOption"
+                    theme="legacy"
+                >
+                </ag-grid-vue>
+            </div>
+        </Dialog>
+    </div>
+</template>
+
+<script setup>
+import { getGdz } from "@/api/url.js";
+import { AgGridVue } from "ag-grid-vue3";
+import { useToast } from 'primevue/usetoast';
+import { getInterval1 } from '@/utils/chartUtil.js'
+
+defineOptions({
+  name: 'cwgdczl'
+})
+
+const toast = useToast()
+
+const stm = ref('')
+const etm = ref('')
+const stcd = ref('')
+const siteArr = ref([])
+const isLoading = ref(false)
+
+const visible = ref(false)
+const headerTitle = ref('摘录数据')
+const tabledata = ref([])
+const columnDefs = ref([
+    { field: "index", title: "序号", headerName: "序号" },
+    { field: "time", title: "时间", headerName: '时间' },
+    { field: "z", title: "潮位", headerName: '潮位' },
+])
+
+let gridApi, myChart;
+const defColOption = {
+  // sortable: false,
+  // suppressSizeToFit: true,
+  // wrapText: true, 
+  // autoHeight: true,
+  // editable: true,
+  // filter: "agSetColumnFilter"
+}
+onMounted(() => {
+    stm.value = dayjs().add(-2, "d").format("YYYY-MM-DD");
+    etm.value = dayjs().format("YYYY-MM-DD");
+
+    init();
+    initChart();
+
+    // columnDefs.value = [
+    //     { field: "index", title: "序号", headerName: "序号" },
+    //     { field: "maxPoint_waterLevel", title: "日高高潮", headerName: '日高高潮', width: 80 },
+    //     { field: "maxPoint_time", title: "时间", headerName: '时间', width: 120 },
+    //     { field: "secondMaxPoint_waterLevel", title: "日低高潮", headerName: '日低高潮', width: 80 },
+    //     { field: "secondMaxPoint_time", title: "时间", headerName: '时间', width: 120 },
+    //     { field: "minPoint_waterLevel", title: "日高低潮", headerName: '日高低潮', width: 80 },
+    //     { field: "minPoint_time", title: "时间", headerName: '时间', width: 120 },
+    //     { field: "secondMinPoint_waterLevel", title: "日低低潮", headerName: '日低低潮', width: 80 },
+    //     { field: "secondMinPoint_time", title: "时间", headerName: '时间', width: 120 },
+    // ];
+})
+
+// 初始化图表
+const initChart = () => {
+    const chartDom = document.getElementById('myChart');
+    if (!chartDom) return;
+    if (myChart) {
+        myChart.dispose(); // 销毁现有实例
+        myChart = null;
+    }
+
+    myChart = echarts.init(chartDom);
+}
+
+const setOption = (data1, data2) => {
+    let zdata = [], zldata_LOW = [], zldata_HIGH = [];
+    let minz = Infinity, maxz = -Infinity;
+
+    data1 && data1.forEach(item => {
+        let tm = item.tm;
+        zdata.push({value: [tm, item.z]});
+
+        minz = Math.min(minz, item.z);
+        maxz = Math.max(maxz, item.z);
+    });
+    
+    data2 && data2.forEach(item => {
+        if(item.type === 'LOW') {
+            zldata_LOW.push({value: [item.point.tm, item.point.z]});
+        } else if(item.type === 'HIGH') {
+            zldata_HIGH.push({value: [item.point.tm, item.point.z]});
+        }
+        // zldata.push({value: [item.point.tm, item.point.z]});
+    });
+    let diffz = maxz - minz;
+    let intervalData = getInterval1({ min: minz, max: maxz, diff: diffz });
+
+    let option = {
+        tooltip: {
+            trigger: 'axis',
+            // formatter: function(params) {
+            //     let html = "", tm = params[0].value[0];
+
+            //     params.forEach(item => {
+            //         if(item.seriesName == '应测') {
+            //             html += item.seriesName
+            //         } else if(item.seriesName.includes("水位")) {
+            //             html += item.seriesName + ": " + item.value[1] + " m<br>"
+            //         } else if(item.seriesName.includes("流量")) {
+            //             html += item.seriesName + ": " + item.value[1] + " m³/s<br>"
+            //         }
+            //     })
+
+            //     return tm + "<br>" + html;
+            // },
+        },
+        legend: {
+            show: false
+        },
+        dataZoom: [
+            {
+                type: 'inside',  // 重点：设置为 inside，开启鼠标滚轮缩放
+                xAxisIndex: 0,   // 控制第一个 x 轴
+                start: 0,        // 默认数据窗口范围 0%
+                end: 100         // 默认数据窗口范围 100%
+            }
+        ],
+        grid: {
+            y: 30,
+            y2: 15,
+            x: 15,
+            x2: 30,
+            containLabel: true
+        },
+        xAxis: [
+            {
+                type: "time",
+                onZero: false, 
+                axisLine: {
+                    lineStyle: {
+                        color: "#000",
+                        width: 1, //这里是为了突出显示加上的
+                    },
+                },
+                axisLabel: {
+                    showMinLabel: true,
+                    showMaxLabel: true,
+                    formatter(value, index) {
+                        let date = new Date(value);
+
+                        return (
+                            "{hour|" + date.getHours() +"时}" +
+                            "{minute|" + date.getMinutes() + "分}\n" +
+                            "{day|" + date.getDate() +"日}"
+                        );
+                    },
+                    rich: {
+                        month: {
+                            color: "#000",
+                            fontWeight: "bold",
+                        },
+                        day: {
+                            color: "#078525",
+                            fontWeight: "bold",
+                        },
+                        year: {
+                            color: "#999",
+                        },
+                    },
+                },
+            }
+        ],
+        yAxis: [
+            {
+                type: "value",
+                scale: true,
+                position: "left",
+                nameLocation: "end",
+                name: "潮位(m)",
+                nameGap: 10,
+                min: intervalData.minz,
+                max: intervalData.maxz,
+                interval: intervalData.interval,
+                axisPointer: {
+                    snap: true,
+                },
+                nameTextStyle: {
+                    color: "#000", //水位(m)
+                },
+                axisLabel: {
+                    showMaxLabel: false,
+                    showMinLabel: false,
+                    textStyle: {
+                        color: '#000'
+                    },
+                    formatter: (value, index) => {
+                        //保留两位小数
+                        value = value + "";
+                        if (value.indexOf(".") != -1) {
+                            var zhengshu = value.split(".")[0];
+                            var xiaoshu = value.split(".")[1];
+                            xiaoshu = xiaoshu.length > 2 ? xiaoshu.substr(0, 2) : xiaoshu;
+                            value = zhengshu + "." + xiaoshu;
+                        }
+                        return value;
+                    },
+                },
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: "#000",
+                        width: 1, //这里是为了突出显示加上的
+                    },
+                },
+            }
+        ],
+        series: [
+            {
+                name: '原始数据',
+                type: 'line',
+                yAxisIndex: 0,
+                showSymbol: false,
+                hoverAnimation: false,
+                animationDuration: 5000,
+                data: zdata,
+                lineStyle: {
+                    normal: {
+                        color: "#00b7ee",
+                        width: 2,
+                    },
+                },
+                label: {
+                    normal: {
+                        show: true,
+                        position: "top",
+                    },
+                },
+                itemStyle: {
+                    normal: {
+                        color: "#00b7ee",
+                        width: 2,
+                        //shadowColor: 'rgba(0,0,0,0.4)',
+                        //shadowBlur: 10,
+                        //shadowOffsetY: 10
+                    },
+                },
+                markPoint: {
+                    silent: true,
+                    label: {
+                        normal: {
+                            show: true,
+                            textStyle: {
+                                color: "white",
+                            },
+                        },
+                    },
+                    data: [
+                        { type: "max", name: "最大值" },
+                        { type: "min", name: "最小值" },
+                    ],
+                },
+            },{
+                name: "摘录后数据",
+                type: "scatter",
+                yAxisIndex: 0,
+                data: zldata_LOW,
+                connectNulls: true,
+                showSymbol: false,
+                symbol: "circle",
+                symbolSize: 13,
+                hoverAnimation: false,
+                itemStyle: {
+                    color: '#FF7F50'
+                },
+                label: {
+                    normal: {
+                        show: true,
+                        position: "top",
+                    },
+                },
+                // markPoint: {
+                //     silent: true,
+                //     label: {
+                //         normal: {
+                //             show: true,
+                //             textStyle: {
+                //                 color: "white",
+                //             },
+                //         },
+                //     },
+                //     data: [
+                //         { type: "max", name: "最大值" },
+                //         { type: "min", name: "最小值" },
+                //     ],
+                // },
+            },{
+                name: "摘录后数据",
+                type: "scatter",
+                yAxisIndex: 0,
+                data: zldata_HIGH,
+                connectNulls: true,
+                showSymbol: false,
+                symbol: "circle",
+                symbolSize: 13,
+                hoverAnimation: false,
+                itemStyle: {
+                    color: '#00FFFF'
+                },
+                label: {
+                    normal: {
+                        show: true,
+                        position: "top",
+                    },
+                },
+                // markPoint: {
+                //     silent: true,
+                //     label: {
+                //         normal: {
+                //             show: true,
+                //             textStyle: {
+                //                 color: "white",
+                //             },
+                //         },
+                //     },
+                //     data: [
+                //         { type: "max", name: "最大值" },
+                //         { type: "min", name: "最小值" },
+                //     ],
+                // },
+            }
+        ]
+    }
+
+    myChart && myChart.setOption(option, true);
+    myChart && myChart.resize();
+}
+
+const init = () => {
+    axios.get("http://10.34.1.25/ahsxx/service/BusinessHandler.ashx?name=SelectStcdStnm&moduleid=13459").then(res => {
+        siteArr.value = res.data["潮位站"];
+
+        stcd.value = siteArr.value[0].STCD;
+        getList();
+    }).catch(err => {
+        toast.add({ severity: 'error', summary: '请求失败，请重试', detail: '', group: 'tc', life: 3000 });
+        console.log(err);
+    })
+}
+
+const getList = () => {
+    tabledata.value = [];
+    isLoading.value = true;
+    myChart && myChart.showLoading();
+    let params = {
+        stcd: stcd.value,
+        stime: dayjs(stm.value).format("YYYY-MM-DD ") + `00:00`,
+        etime: dayjs(etm.value).format("YYYY-MM-DD ") + `00:00`,
+    }
+    if((params.stime == params.etime) || (params.stime > params.etime)){
+        toast.add({ severity: 'warn', summary: '请选择正确时间范围', detail: '', group: 'tc', life: 3000 });
+        isLoading.value = false;
+        myChart && myChart.hideLoading();
+        return;
+    }
+
+    getGdz(params).then(res => {
+        isLoading.value = false;
+        myChart && myChart.hideLoading();
+        if (res.code === 0) {
+            const {listBxsw, bands} = res.data;
+            tabledata.value = bands.map((item, index) => {
+                return {
+                    index: index + 1,
+                    time: item.point.tm,
+                    z: item.point.z,
+                    // minPoint_time: item.minPoint.tm?formatTime(item.minPoint.tm):'',
+                    // minPoint_waterLevel: item.minPoint.waterLevel,
+                    // secondMaxPoint_time: item.secondMaxPoint.tm?formatTime(item.secondMaxPoint.tm):'',
+                    // secondMaxPoint_waterLevel: item.secondMaxPoint.waterLevel,
+                    // secondMinPoint_time: item.secondMinPoint.tm?formatTime(item.secondMinPoint.tm):'',
+                    // secondMinPoint_waterLevel: item.secondMinPoint.waterLevel,
+                }
+            });
+            setOption(listBxsw, bands);
+        } else {
+            myChart && myChart.hideLoading();
+            setOption([], []);
+        }
+    }).catch(err => {
+        toast.add({ severity: 'error', summary: '请求失败，请重试', detail: '', group: 'tc', life: 3000 });
+        isLoading.value = false;
+        myChart && myChart.hideLoading();
+        console.log(err);
+    })
+}
+
+const handleShowTable = () => {
+    visible.value = true;
+
+    setTimeout(() => {
+        gridApi && gridApi.sizeColumnsToFit();
+    }, 300);
+}
+
+const exportData = () => {
+    let headers = columnDefs.value.map(item => ({...item, width: 25}));
+    const config = {
+        headers: headers,
+        data: tabledata.value,
+        headerDeep:1,
+        fileName: "已摘录数据"
+    };
+
+    // http://60.174.203.118:5233/export // 公司
+    // http://10.34.1.25:5233/export // 省局
+    axios.post('http://10.34.1.25:5233/export', config).then(res => {
+        if (res.data.code === 0) {
+        const a = document.createElement('a')
+        a.href = res.data.data;
+        a.click();
+        } else {
+        toast.add({ severity: 'error', summary: '导出失败，请重试', detail: '', group: 'tc', life: 3000 });
+        }
+    }).catch(err => {
+        toast.add({ severity: 'error', summary: '导出失败，请重试', detail: '', group: 'tc', life: 3000 });
+        console.log(err);
+    })
+}
+
+// 初始化
+const onGridReady = (params) => {
+  gridApi = params.api
+  gridApi.sizeColumnsToFit();
+};
+
+function formatTime(time) {
+  return dayjs(time).format("YYYY-MM-DD HH:mm");
+}
+
+</script>
+
+<style></style>

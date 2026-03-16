@@ -43,9 +43,6 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
-import dayjs from "dayjs";
 import {hourArr} from "@/utils/index.js";
 import { useToast } from 'primevue/usetoast';
 import { AgGridVue } from "ag-grid-vue3";
