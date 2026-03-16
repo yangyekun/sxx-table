@@ -46,12 +46,10 @@
 
 <script setup>
 import {ref, onMounted, reactive, h} from 'vue';
-import dayjs from "dayjs";
 import {useToast} from 'primevue/usetoast';
 import {AgGridVue} from "ag-grid-vue3";
 import {userid, submit, reportList, listHistory} from "@/api/url.js";
 import {column} from '@/utils/columnDefs.js'
-import axios from "axios";
 import CustomTooltip from "./customtooltip.js"
 
 defineOptions({

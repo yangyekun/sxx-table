@@ -95,3 +95,33 @@ export function getGdz(data) {
     data
   });
 }
+
+// 获取用户
+export function userid(params) {
+    return http({
+        url: `/cj/shebei/getSheBeiTail?userid=${params}`,
+        method: 'get',
+    });
+}
+// 重点工作台账保存
+export function submit(data) {
+    return http({
+        url: `/cj/api/report/submit`,
+        method: 'post',
+        data
+    });
+}
+// 重点工作台账列表
+export function reportList(params) {
+    return http({
+        url: `/cj/api/report/list?userId=${params}`,
+        method: 'get',
+    });
+}
+// 重点工作台账历史修改记录
+export function listHistory(params) {
+    return http({
+        url: `/cj/api/report/listHistory`,
+        method: 'get',
+    });
+}
