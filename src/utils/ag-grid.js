@@ -18,8 +18,8 @@ import {
 } from 'ag-grid-community';
 
 import {
-  SetFilterModule,
-  LicenseManager
+    SetFilterModule,
+    LicenseManager, TreeDataModule
 } from 'ag-grid-enterprise'
 
 provideGlobalGridOptions({
@@ -41,7 +41,8 @@ ModuleRegistry.registerModules([
   RowStyleModule,
   RowAutoHeightModule,
   ScrollApiModule,
-  AllCommunityModule
+  AllCommunityModule,
+    TreeDataModule
 ]);
 
 LicenseManager.setLicenseKey('myWaterLicense')

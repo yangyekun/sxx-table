@@ -65,15 +65,15 @@ html,body {
   font-weight: 600;
 }
 
-.page-main .ag-header .ag-header-cell-label{
+.page-main,.page-table .ag-header .ag-header-cell-label{
   justify-content: center;
   white-space: normal;
   word-wrap: break-word;
 }
-.page-main .ag-header .ag-header-cell-label .ag-header-cell-text {
+.page-main,.page-table .ag-header .ag-header-cell-label .ag-header-cell-text {
   text-align: center;
 }
-.page-main .ag-body .ag-row .ag-cell{
+.page-main,.page-table .ag-body .ag-row .ag-cell{
   text-align: center;
 }
 /* .page-main .ag-body .ag-cell {
