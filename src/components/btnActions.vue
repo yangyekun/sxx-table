@@ -1,5 +1,7 @@
 <template>
   <div class="orpType">
+    <Button v-if="params.type.includes('批准')" label="批准" severity="success" size="small" text @click="handleApprove()" />
+    <Button v-if="params.type.includes('拒绝')" label="拒绝" severity="danger" size="small" text @click="handleReject()" />
     <Button v-if="params.type.includes('认定为正确修改')" label="认定为正确修改" severity="success" size="small" text @click="handleApprove()" />
     <Button v-if="params.type.includes('认定为错误修改')" label="认定为错误修改" severity="danger" size="small" text @click="handleReject()" />
     <Button v-if="params.type.includes('错误修改')" label="错误修改" severity="info" size="small" text @click="handleModify()" />
