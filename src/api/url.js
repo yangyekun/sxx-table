@@ -85,12 +85,20 @@ export function getCcByStcd(data) {
   });
 }
 
-
 // 逐潮高低潮摘录
 export function getGdz(data) {
   return http({
     url: prefix + '/getGdzs',
     // url: prefix + '/getGdz',
+    method: 'post',
+    data
+  });
+}
+
+// 逐日总蓄水
+export function getRsvrFeatureLevel(data) {
+  return http({
+    url: '/jb/water/getRsvrFeatureLevel',
     method: 'post',
     data
   });
