@@ -239,7 +239,6 @@ onMounted(() => {
 
 .page-table-list div.active {
   background-color: #9DC8FD;
-  //color: #cccccc;
 }
 
 .page-table-list div:hover {
