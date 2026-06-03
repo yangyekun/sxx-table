@@ -133,3 +133,20 @@ export function getRsvrFeatureLevel(data) {
     data
   });
 }
+
+// 遥测数据异常情况填报
+export function selectFaultReport(data) {
+  return http({
+    url: `/cj/record/selectFaultReport?${data}`,
+    method: 'get'
+  });
+}
+
+// 遥测数据异常情况填报更新
+export function updateFaultReport(data) {
+  return http({
+    url: `/cj/record/updateFaultReport`,
+    method: 'post',
+    data
+  });
+}
