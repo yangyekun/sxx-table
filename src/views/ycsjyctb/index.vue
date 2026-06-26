@@ -125,8 +125,8 @@ let reasonTypeList = [
 ];
 let disposalResultList = [
     { label: '处置完毕', value: '处置完毕' },
-    { label: '暂时恢复有待观察', value: '暂时恢复有待观察' },
-    { label: '异常恢复', value: '异常恢复' },
+    // { label: '暂时恢复有待观察', value: '暂时恢复有待观察' },
+    { label: '暂时恢复', value: '暂时恢复' },
 ];
 
 const toast = useToast();
@@ -144,8 +144,8 @@ let gridApi;
 const defColOption = {
 //   sortable: false,
 //   suppressSizeToFit: true,
-  // wrapText: true, 
-  // autoHeight: true,
+//   wrapText: false, 
+//   autoHeight: true,
   // editable: true,
   // filter: "agSetColumnFilter"
 };
@@ -178,13 +178,13 @@ const pinnedTopRowData = ref([
         responseTime: '必填。系统自动填报市局首次填报“异常原因类型”“异常原因详细说明”“处置计划”“处置进度”“处置结果”中任意一项的时间。不可修改。',
         disposalPlan: '市局填报处置计划。实时更新。',
         disposalProgress: '市局填报已经开展的处置过程。实时更新。',
-        disposalResult: '市局填报“异常情况处置完毕”“暂时恢复有待观察”处置结果。下拉选择。实时更新。'
+        disposalResult: '市局填报“处置完毕”“暂时恢复”处置结果。下拉选择。实时更新。'
     }
 ]);
 
 // 调整行高
 const getRowHeight = (params) => {
-  return params.data.index == "注" ? 155 : 40
+  return params.data.index == "注" ? 95 : 40
 };
 
 const getList = () => {
@@ -293,17 +293,17 @@ onMounted(() => {
     { field: "index", title: "序号", headerName: '序号', minWidth: 80 },
     { field: "stnm", title: "站名", headerName: '站名', minWidth: 100, colSpan: (params) => params.data.index == '注'? 3 : 1 },
     { field: "stcd", title: "站码", headerName: '站码', minWidth: 100 },
-    { field: "manageUnit", title: "管理单位", headerName: '管理单位', minWidth: 100 },
-    { field: "abnormalSituation", title: "异常情况", headerName: '异常情况', minWidth: 150 },
+    { field: "manageUnit", title: "管理单位", headerName: '管理单位', minWidth: 110 },
+    { field: "abnormalSituation", title: "异常情况", headerName: '异常情况', minWidth: 185, tooltipField: 'abnormalSituation' },
     { field: "smsSendTime", title: "提醒短信发送时间", headerName: '提醒短信发送时间', minWidth: 150 },
-    { field: "reasonType", title: "异常原因类型", headerName: '异常原因类型', minWidth: 250 },
-    { field: "reasonDetail", title: "异常原因详细说明", headerName: '异常原因详细说明', minWidth: 150 },
+    { field: "reasonType", title: "异常原因类型", headerName: '异常原因类型', minWidth: 250, tooltipField: 'reasonType' },
+    { field: "reasonDetail", title: "异常原因详细说明", headerName: '异常原因详细说明', minWidth: 380, tooltipField: 'reasonDetail' },
     { field: "responseTime", title: "响应时间", headerName: '响应时间', minWidth: 255 },
-    { field: "disposalPlan", title: "处置计划", headerName: '处置计划', minWidth: 140 },
-    { field: "disposalProgress", title: "处置进度", headerName: '处置进度', minWidth: 180 },
-    { field: "disposalResult", title: "处置结果", headerName: '处置结果', minWidth: 180 },
-    { field: "note", title: "备注", headerName: '备注', minWidth: 100 },
-    { field: "techGuidance", title: "水情处技术指导意见", headerName: '水情处技术指导意见', minWidth: 180 },
+    { field: "disposalPlan", title: "处置计划", headerName: '处置计划', minWidth: 180, tooltipField: 'disposalPlan' },
+    { field: "disposalProgress", title: "处置进度", headerName: '处置进度', minWidth: 185, tooltipField: 'disposalProgress' },
+    { field: "disposalResult", title: "处置结果", headerName: '处置结果', minWidth: 180, tooltipField: 'disposalResult' },
+    { field: "note", title: "备注", headerName: '备注', minWidth: 100, tooltipField: 'note' },
+    { field: "techGuidance", title: "水情处技术指导意见", headerName: '水情处技术指导意见', minWidth: 180, tooltipField: 'techGuidance' },
     {
         field: "", 
         title: "操作", 
@@ -330,5 +330,9 @@ onMounted(() => {
 }
 .ag-header-cell-label {
     justify-content: center;
+}
+
+.ag-row-pinned .ag-cell-not-inline-editing {
+    line-height: 22px !important;
 }
 </style>
