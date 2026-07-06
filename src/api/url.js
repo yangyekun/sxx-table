@@ -150,3 +150,11 @@ export function updateFaultReport(data) {
     data
   });
 }
+
+
+export function get3hRainForecast(data) {
+  return http({
+    url: `/jb/huaiwei/get3hRainForecastImageBase64?startTime=${data.time}&rainHour=${data.hour}`,
+    method: 'get'
+  });
+}
