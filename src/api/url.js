@@ -151,10 +151,23 @@ export function updateFaultReport(data) {
   });
 }
 
-
 export function get3hRainForecast(data) {
   return http({
     url: `/jb/huaiwei/get3hRainForecastImageBase64?startTime=${data.time}&rainHour=${data.hour}`,
+    method: 'get'
+  });
+}
+
+export function waterStorageList(data) {
+  return http({
+    url: `/cj/waterStorage/list?startTime=${data.stime}&endTime=${data.etime}&hour=${data.hour}`,
+    method: 'get'
+  });
+}
+
+export function waterStorageRefresh(data) {
+  return http({
+    url: `/cj/waterStorage/refresh?startTime=${data.stime}&endTime=${data.etime}&hour=${data.hour}`,
     method: 'get'
   });
 }
