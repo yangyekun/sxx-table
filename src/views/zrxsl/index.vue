@@ -12,8 +12,9 @@
     <div class="page-head">
         <div flex-y-center>
             <div class="point-title">
-            <span class="point"></span>
-            <span class="point-label">逐日蓄水量</span>
+                <span class="point"></span>
+                <span class="point-label">逐日蓄水量</span>
+                <p class="point-desc">（2026年5月1号以来的数据从缓存中获取，速度较快，其他时间实时查询，速度可能较慢）</p>
             </div>
         </div>
         <div>
@@ -25,7 +26,7 @@
             <Select v-model="hour" :options="hourArr" optionLabel="label" optionValue="value" w-80px />
 
             <Button label="查询" size="small" @click="getList" :disabled="isLoading" ml-10px style="padding: 5px 25px;" />
-            <Button label="清除缓存" size="small" severity="danger" @click="refresh" :loading="refreshLoading" ml-10px style="padding: 5px 25px;" />
+            <Button label="刷新缓存" size="small" severity="danger" @click="refresh" :loading="refreshLoading" ml-10px style="padding: 5px 25px;" />
             <Button label="导出" size="small" severity="success" v-if="tableData.length" @click="handleExport" ml-10px style="padding: 5px 25px;"  />
         </div>
     </div>
@@ -165,4 +166,9 @@ onMounted(() => {
 
 </script>
 
-<style></style>
+<style scoped>
+.point-desc {
+    color: red;
+    font-size: 13px;
+}
+</style>
