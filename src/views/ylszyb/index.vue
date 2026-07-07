@@ -20,17 +20,20 @@
       </div>
     </div>
 
-    <div class="page-main b-#ccc" b-1 b-dashed>
+    <div class="page-main b-#ccc" b-1 b-dashed relative>
       <ProgressSpinner v-if="isLoading" />
       <Image v-else-if="imageUrl" :src="imageUrl" alt="雨量预报图" class="responsive-image"/>
+
+      <i class="pi pi-angle pi-angle-left top-50% translate-y-[-50%] left-220px" absolute @click="prevHour"></i>
+      <i class="pi pi-angle pi-angle-right top-50% translate-y-[-50%] right-220px" absolute @click="nextHour"></i>
     </div>
   </div>
 </template>
 
 <script setup>
 import { ref } from 'vue';
-import { get3hRainForecast } from '@/api/url';
 import { useToast } from 'primevue/usetoast';
+import { get3hRainForecast } from '@/api/url';
 
 const toast = useToast();
 
@@ -39,7 +42,7 @@ const rainHourOptions = [3, 6, 12, 24, 48, 72];
 
 const selectedDate = ref(new Date());
 const selectedStartTime = ref('08');
-const selectedRainHour = ref(3);
+const selectedRainHour = ref(24);
 
 const isLoading = ref(false);
 const imageUrl = ref('');
@@ -59,10 +62,8 @@ const fetchRainForecast = async () => {
     return;
   }
 
-  // 拼接请求参数 startTime 格式：yyyyMMddHH [cite: 3]
   const dateStr = formatDate(selectedDate.value);
   const startTime = `${dateStr}${selectedStartTime.value}`;
-
   isLoading.value = true;
   imageUrl.value = '';
 
@@ -90,6 +91,24 @@ const fetchRainForecast = async () => {
     isLoading.value = false;
   }
 };
+
+const prevHour = () => {
+  let time = dayjs(selectedDate.value).format('YYYY-MM-DD') + ` ${selectedStartTime.value}:00`;
+  time = dayjs(time).subtract(selectedRainHour.value, 'hour').format('YYYY-MM-DD HH:mm');
+
+  selectedDate.value = dayjs(time).format('YYYY-MM-DD');
+  selectedStartTime.value = dayjs(time).format('HH');
+  fetchRainForecast();
+}
+
+const nextHour = () => {
+  let time = dayjs(selectedDate.value).format('YYYY-MM-DD')+ ` ${selectedStartTime.value}:00`;
+  time = dayjs(time).add(selectedRainHour.value, 'hour').format('YYYY-MM-DD HH:mm');
+
+  selectedDate.value = dayjs(time).format('YYYY-MM-DD');
+  selectedStartTime.value = dayjs(time).format('HH');
+  fetchRainForecast();
+}
 
 const downloadImage = () => {
   if (!imageUrl.value) return;
@@ -119,5 +138,21 @@ onMounted(() => {
 }
 .responsive-image :deep(img) {
   height: calc(100% - 0px);
+}
+
+/* 点击箭头切换图片 */
+.pi-angle {
+  cursor: pointer;
+  border: 1px solid #ccc;
+  border-radius: 50%;
+  padding: 5px;
+  background-color: #f5f5f5;
+  text-align: center;
+  font-size: 2rem;
+  color: #ccc;
+}
+.pi-angle:hover {
+  color: #000 !important;
+  border: 1px solid #000;
 }
 </style>
