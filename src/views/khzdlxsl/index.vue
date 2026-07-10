@@ -98,6 +98,7 @@ onMounted(() => {
     { field: "stcd", title: "站码", headerName: '站码' },
     { field: "stnm", title: "站名", headerName: '站名' },
     { field: "rvnm", title: "河名", headerName: '河名' },
+    { field: "cityName", title: "市名", headerName: '市名' },
     { field: "startTime", title: "开始时间", headerName: '开始时间' },
     { field: "endTime", title: "结束时间", headerName: '结束时间' },
     { field: "maxZ", title: "最大水位", headerName: '最大水位' },
